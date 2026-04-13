@@ -46,14 +46,7 @@ if ! command -v eza &> /dev/null; then
 fi
 
 # bat (Modern cat) - En Ubuntu se llama 'batcat'
-sudo apt-get install -y bat duf lnav
-
-# bottom (btm - Modern top)
-if ! command -v btm &> /dev/null; then
-    BTM_DEB="bottom_0.9.6_amd64.deb"
-    curl -LO "https://github.com/ClementTsang/bottom/releases/latest/download/$BTM_DEB"
-    sudo dpkg -i "$BTM_DEB" && rm "$BTM_DEB"
-fi
+sudo apt-get install -y bat duf lnav btop
 
 # --- 5. IAC STACK (TERRAFORM, TERRAGRUNT, ANSIBLE) ---
 echo "🏗️  Configurando IaC Stack..."
