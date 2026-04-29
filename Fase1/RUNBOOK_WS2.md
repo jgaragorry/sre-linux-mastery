@@ -1,1235 +1,390 @@
-# 🛠️ Runbook: Despliegue de Infraestructura Web Robusta con Nginx
-> **SRE Lab Series: Edición Linux v2.0**
-
-<div align="center">
-
-![Status: Stable](https://img.shields.io/badge/Status-Stable-22863a?style=for-the-badge&logo=checkmark)
-![Version: 2.0.0](https://img.shields.io/badge/Version-2.0.0-0969da?style=for-the-badge&logo=git)
-![Dificultad: Intermedia](https://img.shields.io/badge/Dificultad-Intermedia-fb8500?style=for-the-badge&logo=code)
-![OS: Ubuntu/Debian](https://img.shields.io/badge/OS-Ubuntu/Debian-dd4814?style=for-the-badge&logo=ubuntu)
-![Tiempo Estimado: 30 min](https://img.shields.io/badge/Tiempo%20Estimado-30%20min-1f6feb?style=for-the-badge&logo=clock)
-
-</div>
-
----
-
-## 📋 Tabla de Contenidos
-1. [Introducción & Objetivos](#-introducción--objetivos)
-2. [Arquitectura & Flujo de Trabajo](#-arquitectura--flujo-de-trabajo)
-3. [Etapa 1: Preparación](#-etapa-1-preparación--instalación)
-4. [Etapa 2: Hardening & Seguridad](#-etapa-2-hardening--seguridad)
-5. [Etapa 3: Configuración Avanzada](#-etapa-3-configuración-avanzada)
-6. [Etapa 4: Observabilidad](#-etapa-4-observabilidad)
-7. [Etapa 5: Validación & Testing](#-etapa-5-validación--testing)
-8. [Recuperación de Fallos](#-recuperación-de-fallos)
-
----
-
-## 🎯 Introducción & Objetivos
-
-Este runbook implementa un servidor Nginx **production-ready** bajo principios SRE modernos:
-
-| Objetivo | Descripción | Beneficio |
-|:---------|:-----------|:---------|
-| 🔒 **Hardening** | Configuración de seguridad a nivel kernel y aplicación | Reduce superficies de ataque en 80% |
-| 📊 **Observabilidad** | Logs JSON + métricas estructuradas | Diagnóstico en minutos, no horas |
-| 🔄 **Resiliencia** | Aislamiento de procesos + health checks automáticos | RTO < 30s, disponibilidad 99.95% |
-| 📈 **Escalabilidad** | Estructura modular para multi-sitio | Soporta N sitios sin duplicación |
-
----
-
-## 🏗️ Arquitectura & Flujo de Trabajo
-
-### Diagrama de Flujo Global
-
-```mermaid
-graph TD
-    A["🖥️ Preparación del Sistema<br/>apt update + deps"] -->|Cumplido| B["📦 Instalación Base<br/>nginx, apache2-utils, curl"]
-    B -->|Exitoso| C["💾 Backup Estratégico<br/>Config snapshots"]
-    C -->|Guardado| D["🔐 Hardening & Seguridad<br/>server_tokens + JSON logs"]
-    D -->|Configurado| E["🌐 Virtual Host Setup<br/>sre-lab config"]
-    E -->|Activo| F["👤 Auth & Permisos<br/>htpasswd + webapp user"]
-    F -->|Protegido| G["🔒 Aislamiento Systemd<br/>MemoryMax + ProtectSystem"]
-    G -->|Confinado| H["🔍 Health Checks Automáticos<br/>Cron + métricas"]
-    H -->|Monitoreado| I["✅ Validación Final<br/>Tests + carga"]
-    I -->|Aprobado| J["🚀 Producción<br/>Deployment OK"]
-    
-    style A fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
-    style J fill:#c8e6c9,stroke:#1b5e20,stroke-width:3px
-    style D fill:#fff3e0,stroke:#e65100,stroke-width:2px
-    style G fill:#f3e5f5,stroke:#512da8,stroke-width:2px
-```
-
-### Stack Tecnológico
-
-```mermaid
-graph LR
-    subgraph "Cliente"
-        Client["🖥️ Usuario/Monitoreo"]
-    end
-    
-    subgraph "Capa Web"
-        LB["⚖️ Nginx<br/>(puerto 80)"]
-        Auth["🔐 Basic Auth<br/>.htpasswd"]
-    end
-    
-    subgraph "Capa Aplicación"
-        App["📁 /var/www/sre-lab<br/>(webapp:webapp)"]
-    end
-    
-    subgraph "Capa Observabilidad"
-        Logs["📝 Access Logs<br/>(JSON format)"]
-        Metrics["📊 Stub Status<br/>(/metrics)"]
-        Health["💓 Health Check<br/>(cron auto)"]
-    end
-    
-    subgraph "Capa Seguridad"
-        Systemd["🔒 Systemd Hardening<br/>(MemoryMax, ProtectSystem)"]
-        Firewall["🚪 Aislamiento<br/>(NoNewPrivileges)"]
-    end
-    
-    Client -->|HTTP| LB
-    LB -->|Valida| Auth
-    Auth -->|Sirve| App
-    App -->|Genera| Logs
-    Logs -->|Ingesta| Metrics
-    App -->|Monitored| Health
-    LB -->|Confinado| Systemd
-    Systemd -->|Previene| Firewall
-    
-    style LB fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
-    style Auth fill:#fce4ec,stroke:#c2185b,stroke-width:2px
-    style Systemd fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
-```
-
----
-
-## ⚙️ Etapa 1: Preparación & Instalación
-
-### 1.1 Verificación Previa
-
-```bash
-# ✅ Validar requisitos del sistema
-echo "=== Verificación de Requisitos ==="
-uname -r | grep -q linux && echo "✓ OS: Linux OK"
-which sudo >/dev/null && echo "✓ Sudo: Disponible"
-grep -q '^deb' /etc/apt/sources.list && echo "✓ APT: Configurado"
-
-# Información del sistema
-hostnamectl
-free -h | head -2
-df -h / | tail -1
-```
-
-**🎯 Resultado Esperado:**
-```
-✓ OS: Linux OK
-✓ Sudo: Disponible
-✓ APT: Configurado
-```
-
----
-
-### 1.2 Actualización de Dependencias
-
-```bash
-#!/bin/bash
-set -euo pipefail  # Exit on error, undefined vars, pipe failures
-
-echo "📦 [ETAPA 1] Actualizando índices de paquetes..."
-sudo apt update -qq
-
-echo "📦 Instalando dependencias..."
-sudo apt install -y \
-    nginx \
-    apache2-utils \
-    curl \
-    net-tools \
-    jq
-
-echo "✅ Instalación completada"
-apt list --installed | grep -E 'nginx|apache2-utils|curl' | head -5
-```
-
-**📚 Explicación SRE:**
-
-| Paquete | Propósito | Alternativa | 
-|---------|-----------|-------------|
-| `nginx` | Servidor web principal | Apache, Caddy |
-| `apache2-utils` | `htpasswd` (auth) + `ab` (benchmarking) | OpenSSL manual |
-| `curl` | Health checks + debugging | wget, httpie |
-| `net-tools` | Diagnóstico de red (ss, ip) | iproute2 (moderno) |
-| `jq` | Procesamiento de logs JSON | grep/sed (ineficiente) |
-
----
-
-## 🔐 Etapa 2: Hardening & Seguridad
-
-### 2.1 Gestión del Servicio Systemd
-
-```bash
-#!/bin/bash
-echo "🚀 [ETAPA 2.1] Habilitando servicio Nginx..."
-
-# Habilitar inicio automático + arrancar
-sudo systemctl enable --now nginx
-
-# Validar estado
-sudo systemctl status nginx --no-pager
-
-# Verificar puertos en escucha (ss es más moderno que netstat)
-echo "🔍 Comprobando puertos activos:"
-sudo ss -tulpn | grep -E ':80|nginx' || echo "⚠️ Nginx aún no escucha en :80"
-
-# Obtener información del proceso
-echo "📊 Proceso Nginx:"
-ps aux | grep "[n]ginx" | awk '{print "PID:", $2, "| User:", $1}'
-```
-
-**✅ Validación:**
-```
-● nginx.service - A high performance web server and a reverse proxy server
-   Active: active (running) since ...
-   
-Proto Recv-Q Send-Q Local Address    Foreign Address State    PID/Program
-tcp      0      0 0.0.0.0:80        0.0.0.0:*      LISTEN   1234/nginx
-```
-
----
-
-### 2.2 Estrategia de Backup (Rollback Plan)
-
-```bash
-#!/bin/bash
-echo "💾 [ETAPA 2.2] Creando snapshots de configuración..."
-
-export BKP_DIR="/var/backups/nginx_$(date +%Y-%m-%d_%H%M%S)"
-export BKP_MANIFEST="$BKP_DIR/manifest.txt"
-
-# Crear directorio con permisos restrictivos
-sudo mkdir -p "$BKP_DIR"
-sudo chmod 700 "$BKP_DIR"
-
-# Array de archivos críticos a respaldar
-declare -a CRITICAL_FILES=(
-    "/etc/nginx/nginx.conf"
-    "/etc/nginx/sites-available"
-    "/etc/nginx/conf.d"
-)
-
-echo "Iniciando backups..." | sudo tee "$BKP_MANIFEST"
-for file in "${CRITICAL_FILES[@]}"; do
-    if [ -e "$file" ]; then
-        echo "Respaldando: $file"
-        sudo cp -r "$file" "$BKP_DIR/" 2>&1 | sudo tee -a "$BKP_MANIFEST"
-    fi
-done
-
-# Crear script de restauración automática
-sudo tee "$BKP_DIR/restore.sh" > /dev/null <<'EOF'
-#!/bin/bash
-echo "⏮️ RESTAURANDO DESDE BACKUP: $BKP_DIR"
-sudo systemctl stop nginx
-sudo cp -r "$BKP_DIR/nginx.conf" /etc/nginx/
-sudo cp -r "$BKP_DIR/sites-available"/* /etc/nginx/sites-available/ 2>/dev/null || true
-sudo systemctl start nginx
-echo "✅ Restauración completada"
-EOF
-
-sudo chmod +x "$BKP_DIR/restore.sh"
-sudo chmod 600 "$BKP_MANIFEST"
-
-echo "✅ Backup guardado en: $BKP_DIR"
-ls -lah "$BKP_DIR"
-```
-
----
-
-### 2.3 Hardening de Nginx (Configuración Base)
-
-**Editar:** `/etc/nginx/nginx.conf`
-
-```nginx
-# ╔════════════════════════════════════════════════════════════════╗
-# ║          NGINX HARDENED CONFIGURATION v2.0                     ║
-# ║          Principios: Zero Trust + Defense in Depth              ║
-# ╚════════════════════════════════════════════════════════════════╝
-
-user www-data;
-
-# Auto-detect número de CPUs disponibles
-worker_processes auto;
-worker_rlimit_nofile 65535;  # Max file descriptors
-
-pid /run/nginx.pid;
-
-events {
-    worker_connections 4096;
-    use epoll;  # Multiplexor optimizado para Linux
-    multi_accept on;
-}
-
-http {
-    # ╔─ HARDENING FUNDAMENTAL ─╗
-    
-    # 1. OCULTAR INFORMACIÓN SENSIBLE
-    server_tokens off;                    # No mostrar versión de Nginx
-    server_name_in_redirect off;          # No exponer nombre en redirects
-    
-    # 2. LÍMITES ANTI-DOS
-    client_max_body_size 2M;              # Máximo tamaño de cuerpo
-    client_header_timeout 15s;            # Timeout para headers
-    client_body_timeout 15s;              # Timeout para cuerpo
-    keepalive_timeout 65s;                # Timeout de conexión persistente
-    send_timeout 10s;                     # Timeout para envíos
-    
-    # 3. COMPRESIÓN (Mejora rendimiento)
-    gzip on;
-    gzip_vary on;
-    gzip_min_length 1000;
-    gzip_types text/plain text/css text/xml text/javascript 
-               application/x-javascript application/xml+rss;
-    
-    # ╔─ OBSERVABILIDAD: LOGS JSON ─╗
-    
-    log_format json_analytics escape=json
-      '{'
-        '"time_local":"$time_local",'
-        '"remote_addr":"$remote_addr",'
-        '"remote_user":"$remote_user",'
-        '"request_method":"$request_method",'
-        '"request_uri":"$request_uri",'
-        '"status":$status,'
-        '"body_bytes_sent":$body_bytes_sent,'
-        '"request_time":$request_time,'
-        '"upstream_response_time":"$upstream_response_time",'
-        '"http_referrer":"$http_referer",'
-        '"http_user_agent":"$http_user_agent",'
-        '"http_x_forwarded_for":"$http_x_forwarded_for"'
-      '}';
-    
-    # Log de errores con contexto
-    error_log /var/log/nginx/error.log warn;
-    
-    # ╔─ CONFIGURACIÓN GLOBAL ─╗
-    include /etc/nginx/conf.d/*.conf;
-    include /etc/nginx/sites-enabled/*;
-}
-```
-
-**Validar sintaxis:**
-```bash
-sudo nginx -t
-# Output esperado:
-# nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
-# nginx: configuration file /etc/nginx/nginx.conf test is successful
-```
-
----
-
-## 🌐 Etapa 3: Configuración Avanzada
-
-### 3.1 Creación de Usuario Dedicado y Directorios
-
-```bash
-#!/bin/bash
-echo "👤 [ETAPA 3.1] Configurando usuario y directorios..."
-
-# Crear usuario sin capacidad de login (nologin)
-if ! id "webapp" &>/dev/null; then
-    echo "Creando usuario: webapp"
-    sudo useradd -m -s /usr/sbin/nologin -c "Web Application User" webapp
-fi
-
-# Crear estructura de directorios
-WEBROOT="/var/www/sre-lab"
-sudo mkdir -p "$WEBROOT"
-sudo mkdir -p "$WEBROOT/content"
-sudo mkdir -p /var/cache/nginx
-
-# Establecer permisos (Principio de Menor Privilegio)
-echo "Configurando permisos..."
-sudo chown -R webapp:www-data "$WEBROOT"
-sudo chmod 750 "$WEBROOT"                      # rwx r-x ---
-sudo chmod 755 "$WEBROOT/content"              # rwx r-x r-x
-
-# Verificar
-echo "✅ Estructura creada:"
-ls -lad "$WEBROOT" "${WEBROOT}/content"
-getent passwd webapp
-```
-
-**Matriz de Permisos:**
-
-```
-┌─ Usuario webapp
-│  ├─ Lee   ✓
-│  ├─ Escribe ✓
-│  └─ Ejecuta ✓
-├─ Grupo www-data (Nginx)
-│  ├─ Lee   ✓
-│  ├─ Escribe ✗
-│  └─ Ejecuta ✓
-└─ Otros
-   ├─ Lee   ✗
-   ├─ Escribe ✗
-   └─ Ejecuta ✗
-```
-
----
-
-### 3.2 Autenticación Básica HTTP
-
-```bash
-#!/bin/bash
-echo "🔐 [ETAPA 3.2] Configurando autenticación..."
-
-# Crear archivo de credenciales
-HTPASSWD_FILE="/etc/nginx/.htpasswd"
-
-# Primera vez: crear archivo
-echo "Crear usuario 'sre_admin'"
-sudo htpasswd -c "$HTPASSWD_FILE" sre_admin
-
-# Agregar más usuarios (sin -c)
-# sudo htpasswd "$HTPASSWD_FILE" additional_user
-
-# Configurar permisos
-sudo chown root:www-data "$HTPASSWD_FILE"
-sudo chmod 640 "$HTPASSWD_FILE"
-
-echo "✅ Autenticación configurada"
-echo "Archivo: $HTPASSWD_FILE"
-sudo ls -l "$HTPASSWD_FILE"
-
-# Prueba rápida
-echo "---"
-echo "🧪 Test: Intentar acceso sin credenciales"
-curl -I http://localhost/ 2>/dev/null | head -3
-```
-
-**Formato del archivo:**
-```
-sre_admin:$apr1$abcd1234$...encrypted...
-```
-
----
-
-### 3.3 Virtual Host: sre-lab
-
-**Crear:** `/etc/nginx/sites-available/sre-lab`
-
-```nginx
-# ╔════════════════════════════════════════════════════════════════╗
-# ║          VIRTUAL HOST: sre-lab                                  ║
-# ║          Principios: Aislamiento, Seguridad, Observabilidad     ║
-# ╚════════════════════════════════════════════════════════════════╝
-
-server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
-    
-    server_name localhost _;
-    
-    # ╔─ RAÍZ DEL SITIO ─╗
-    root /var/www/sre-lab;
-    index index.html index.htm;
-    
-    # ╔─ LOGS ESTRUCTURADOS ─╗
-    access_log /var/log/nginx/sre-lab.access.json json_analytics;
-    error_log /var/log/nginx/sre-lab.error.log warn;
-    
-    # ╔─ CABECERAS DE SEGURIDAD ─╗
-    add_header X-Frame-Options "SAMEORIGIN" always;
-    add_header X-Content-Type-Options "nosniff" always;
-    add_header X-XSS-Protection "1; mode=block" always;
-    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-    add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
-    
-    # ╔─ CONFIGURACIÓN DE CACHÉ ─╗
-    expires 1h;
-    add_header Cache-Control "public, max-age=3600";
-    
-    # ╔─ ENDPOINT PROTEGIDO: CONTENIDO PRINCIPAL ─╗
-    location / {
-        # Autenticación básica HTTP
-        auth_basic "SRE Lab - Acceso Restringido";
-        auth_basic_user_file /etc/nginx/.htpasswd;
-        
-        # Intenta archivo → directorio → 404
-        try_files $uri $uri/ =404;
-        
-        # Archivos estáticos: HTTP 2
-        http2_push_preload on;
-    }
-    
-    # ╔─ ENDPOINT PÚBLICAS: MÉTRICAS (Monitoreo) ─╗
-    location /metrics {
-        stub_status on;
-        access_log off;
-        
-        # Restricción IP (solo localhost)
-        allow 127.0.0.1;
-        allow ::1;
-        deny all;
-    }
-    
-    # ╔─ HEALTH CHECK ENDPOINT ─╗
-    location /health {
-        access_log off;
-        return 200 "OK";
-        add_header Content-Type "text/plain";
-    }
-    
-    # ╔─ SEGURIDAD: DENEGAR ARCHIVOS PELIGROSOS ─╗
-    location ~ /\. {
-        deny all;
-        access_log off;
-    }
-    
-    location ~ ~$ {
-        deny all;
-        access_log off;
-    }
-    
-    location ~ \.php$ {
-        deny all;
-        access_log off;
-    }
-}
-```
-
-**Activar Virtual Host:**
-
-```bash
-#!/bin/bash
-echo "🌐 [ETAPA 3.3] Activando virtual host sre-lab..."
-
-# Crear symbolic link
-sudo ln -sf /etc/nginx/sites-available/sre-lab /etc/nginx/sites-enabled/
-
-# Desactivar sitio default
-sudo unlink /etc/nginx/sites-enabled/default 2>/dev/null || true
-
-# Validar sintaxis
-echo "Validando configuración..."
-sudo nginx -t
-
-# Recargar (sin downtime)
-echo "Recargando Nginx..."
-sudo systemctl reload nginx
-
-echo "✅ Virtual host activo"
-sudo nginx -T 2>&1 | grep "server_name"
-```
-
----
-
-### 3.4 Desplegar Contenido Web
-
-```bash
-#!/bin/bash
-echo "📁 [ETAPA 3.4] Desplegando contenido web..."
-
-WEBROOT="/var/www/sre-lab"
-WEBAPP_USER="webapp"
-
-# Crear index.html
-sudo tee "$WEBROOT/index.html" > /dev/null <<'EOF'
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SRE Lab - Nginx Hardened</title>
+    <title>Runbook: Despliegue Seguro de Nginx + Hardening | SRE-LAB</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #333;
+            background: linear-gradient(135deg, #0b2b2b 0%, #0a1a1a 100%);
+            font-family: 'Segoe UI', 'Fira Code', 'Cascadia Code', monospace;
+            padding: 2rem;
+            color: #e0e0e0;
         }
         .container {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            padding: 2.5rem;
-            max-width: 600px;
-            text-align: center;
+            max-width: 1300px;
+            margin: 0 auto;
+            background: rgba(18, 25, 30, 0.85);
+            backdrop-filter: blur(2px);
+            border-radius: 2rem;
+            padding: 2rem;
+            box-shadow: 0 25px 45px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+            border: 1px solid rgba(0,255,255,0.2);
         }
         h1 {
-            color: #667eea;
             font-size: 2.5rem;
+            background: linear-gradient(135deg, #a5f0ff, #3bc9db);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            border-left: 5px solid #0ff;
+            padding-left: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        h2 {
+            color: #7ee0ff;
+            margin-top: 2rem;
             margin-bottom: 1rem;
+            border-bottom: 2px solid #2c5a5a;
+            padding-bottom: 0.5rem;
         }
-        .status {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin: 2rem 0;
-            text-align: left;
-        }
-        .status-item {
-            background: #f0f4ff;
-            padding: 1rem;
-            border-radius: 8px;
-            border-left: 4px solid #667eea;
-        }
-        .status-item .icon {
-            font-size: 1.5rem;
-            margin-right: 0.5rem;
-        }
-        .status-item .label {
-            font-size: 0.9rem;
-            color: #666;
-            margin-top: 0.3rem;
-        }
-        .welcome {
-            background: #fff3e0;
-            border-left: 4px solid #ff9800;
-            padding: 1.5rem;
-            margin: 1.5rem 0;
-            border-radius: 8px;
-            font-size: 1.1rem;
+        h3 {
+            color: #b2f0c0;
+            margin: 1.2rem 0 0.6rem 0;
         }
         .badge {
-            display: inline-block;
-            background: #667eea;
-            color: white;
-            padding: 0.3rem 0.8rem;
+            background: #0a2f2f;
             border-radius: 20px;
-            font-size: 0.85rem;
-            margin: 0.2rem;
+            padding: 0.2rem 0.8rem;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #0ff;
+            display: inline-block;
+            margin-right: 1rem;
+        }
+        pre, code {
+            background: #0b1219;
+            font-family: 'Fira Code', 'Cascadia Code', monospace;
+            border-radius: 12px;
+            font-size: 0.9rem;
+        }
+        code {
+            padding: 0.2rem 0.4rem;
+            background: #0f1a1f;
+            color: #f0b27a;
+        }
+        pre {
+            padding: 1rem;
+            overflow-x: auto;
+            border-left: 4px solid #0ff;
+            margin: 1rem 0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .step-card {
+            background: #0e1a1c;
+            border-radius: 1.2rem;
+            padding: 1.2rem;
+            margin: 1rem 0;
+            transition: all 0.2s;
+            border: 1px solid #2a4b4b;
+        }
+        .step-card:hover {
+            border-color: #0ff;
+            box-shadow: 0 5px 12px rgba(0,255,255,0.1);
+        }
+        .verification {
+            background: #052222;
+            border-left: 4px solid #0fa;
+            padding: 0.6rem 1rem;
+            border-radius: 12px;
+            margin: 0.8rem 0;
+            font-size: 0.9rem;
+        }
+        .danger {
+            border-left-color: #f77;
+            background: #2a1515;
+        }
+        .note {
+            background: #1e2a2a;
+            border-radius: 12px;
+            padding: 0.6rem 1rem;
+            font-style: italic;
+            color: #ccc;
+        }
+        hr {
+            border: none;
+            height: 1px;
+            background: linear-gradient(90deg, #0ff, transparent);
+            margin: 2rem 0;
         }
         footer {
-            margin-top: 2rem;
-            padding-top: 1rem;
-            border-top: 1px solid #eee;
-            color: #999;
-            font-size: 0.9rem;
+            text-align: center;
+            margin-top: 3rem;
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+        @media (max-width: 680px) {
+            body { padding: 0.8rem; }
+            pre { font-size: 0.7rem; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🚀 SRE Lab</h1>
-        <h2>Nginx Hardened</h2>
-        
-        <div class="status">
-            <div class="status-item">
-                <div class="icon">✅</div>
-                <div>Servidor Web</div>
-                <div class="label">Activo & Monitoreado</div>
-            </div>
-            <div class="status-item">
-                <div class="icon">🔐</div>
-                <div>Autenticación</div>
-                <div class="label">HTTP Basic Auth</div>
-            </div>
-            <div class="status-item">
-                <div class="icon">📊</div>
-                <div>Observabilidad</div>
-                <div class="label">Logs JSON</div>
-            </div>
-            <div class="status-item">
-                <div class="icon">🔒</div>
-                <div>Seguridad</div>
-                <div class="label">Systemd Hardened</div>
-            </div>
-        </div>
-        
-        <div class="welcome">
-            👋 <strong>¡Bienvenido, Ingeniero SRE!</strong><br>
-            Estás viendo una configuración production-ready con hardening completo.
-        </div>
-        
-        <div>
-            <span class="badge">Nginx v1.18+</span>
-            <span class="badge">Ubuntu 20.04+</span>
-            <span class="badge">Zero Downtime</span>
-            <span class="badge">99.95% SLA</span>
-        </div>
-        
-        <footer>
-            <p>Configurado: <span id="timestamp"></span></p>
-            <p>Host: <span id="hostname"></span></p>
-        </footer>
+<div class="container">
+    <h1>🚀 SRE‑LAB Runbook<br>Despliegue Nginx + Hardening + Aislamiento</h1>
+    <p><strong>Objetivo:</strong> Configurar un servidor web Nginx con autenticación básica, seguridad reforzada, limitaciones de recursos (systemd), monitorización automática y pruebas de carga. <br>
+    <strong>Sistema:</strong> Ubuntu 24.04 LTS (para operadores sin experiencia en Linux).</p>
+    <div class="note">📌 Cada comando incluye su <strong>explicación</strong> y <strong>verificación</strong>. Lee todo antes de ejecutar.</div>
+
+    <!-- Fase 1 -->
+    <h2>🔧 Fase 1 – Preparación del sistema</h2>
+    <div class="step-card">
+        <h3>1.1 Actualizar repositorios</h3>
+        <pre><code>sudo apt update</code></pre>
+        <p><strong>¿Por qué?</strong> Sincroniza la lista de paquetes disponibles. Sin esto, podrías instalar versiones antiguas.</p>
+        <div class="verification">✅ Verifica que la última línea sea <code>Leyendo lista de paquetes... Listo</code></div>
     </div>
-    
-    <script>
-        document.getElementById('timestamp').textContent = new Date().toLocaleString('es-CL');
-        fetch('/metrics').then(r => r.text()).then(d => {
-            document.getElementById('hostname').textContent = 'metrics available';
-        }).catch(() => {
-            document.getElementById('hostname').textContent = 'localhost';
-        });
-    </script>
+    <div class="step-card">
+        <h3>1.2 Instalar utilidades básicas</h3>
+        <pre><code>sudo apt install -y curl wget ufw apache2-utils</code></pre>
+        <p><code>apache2-utils</code> incluye <code>htpasswd</code> para autenticación. <code>ufw</code> es el firewall.</p>
+        <div class="verification">✅ <code>htpasswd -v</code> debe mostrar opciones (no error).</div>
+    </div>
+
+    <!-- Fase 2 Instalación base -->
+    <h2>📦 Fase 2 – Instalación de Nginx</h2>
+    <div class="step-card">
+        <h3>2.1 Instalar Nginx</h3>
+        <pre><code>sudo apt install -y nginx</code></pre>
+        <div class="verification">✅ <code>sudo systemctl status nginx --no-pager</code> → <strong>active (running)</strong></div>
+    </div>
+
+    <!-- Fase 3 Backup estratégico (CORREGIDO) -->
+    <h2>💾 Fase 3 – Backup estratégico (corregido)</h2>
+    <div class="step-card">
+        <h3>3.1 Crear carpeta de snapshots</h3>
+        <pre><code>sudo mkdir -p /etc/nginx/snapshots</code></pre>
+    </div>
+    <div class="step-card">
+        <h3>3.2 Copia de seguridad completa (recursiva)</h3>
+        <pre><code>sudo cp -a /etc/nginx /etc/nginx/snapshots/nginx.original.$(date +%Y%m%d_%H%M%S)</code></pre>
+        <p><strong>❌ Error común:</strong> olvidar que <code>/etc/nginx</code> es un directorio. <code>cp -a</code> copia recursivamente preservando atributos (equivale a <code>-dR --preserve=all</code>). Si prefieres, puedes usar <code>cp -r</code> pero <code>-a</code> es más completo.</p>
+        <div class="verification">✅ <code>ls /etc/nginx/snapshots/</code> muestra un directorio con fecha.</div>
+    </div>
+
+    <!-- Fase 4 Hardening + JSON log -->
+    <h2>🔐 Fase 4 – Hardening y logs en JSON (corregido)</h2>
+    <div class="step-card">
+        <h3>4.1 Ocultar versión de Nginx</h3>
+        <pre><code>sudo nano /etc/nginx/nginx.conf</code></pre>
+        <p>Dentro del bloque <code>http { ... }</code> añadir: <code>server_tokens off;</code></p>
+        <div class="verification">✅ <code>sudo nginx -t</code> → syntax ok.</div>
+    </div>
+    <div class="step-card">
+        <h3>4.2 Definir formato JSON (¡al inicio del bloque http!)</h3>
+        <p><strong>⚠️ Importante:</strong> la definición de <code>log_format</code> debe ir <strong>justo después de abrir <code>http {</code></strong>, no al final del archivo. Si la pones al final, Nginx no la reconoce y falla.</p>
+        <pre><code>sudo nano /etc/nginx/nginx.conf</code></pre>
+        <p>Editar para que quede así:</p>
+        <pre><code>http {
+    log_format json escape=json '{ "time": "$time_iso8601", '
+        '"remote_addr": "$remote_addr", '
+        '"request": "$request", '
+        '"status": $status, '
+        '"body_bytes_sent": $body_bytes_sent, '
+        '"request_time": $request_time, '
+        '"http_referrer": "$http_referer", '
+        '"http_user_agent": "$http_user_agent" }';
+    # resto de directivas ...</code></pre>
+        <div class="verification">✅ <code>sudo nginx -t</code> debe pasar sin errores.</div>
+    </div>
+    <div class="step-card">
+        <h3>4.3 Firewall UFW</h3>
+        <pre><code>sudo ufw allow 22/tcp
+sudo ufw allow 80/tcp
+sudo ufw --force enable
+sudo ufw status verbose</code></pre>
+    </div>
+
+    <!-- Fase 5 Virtual Host -->
+    <h2>🌐 Fase 5 – Virtual Host sre‑lab</h2>
+    <div class="step-card">
+        <h3>5.1 Directorio del sitio</h3>
+        <pre><code>sudo mkdir -p /var/www/sre-lab/html
+sudo chown $USER:$USER /var/www/sre-lab/html
+echo '&lt;h1&gt;Bienvenido a SRE-LAB&lt;/h1&gt;' | sudo tee /var/www/sre-lab/html/index.html</code></pre>
+    </div>
+    <div class="step-card">
+        <h3>5.2 Configuración del virtual host (con log JSON)</h3>
+        <pre><code>sudo nano /etc/nginx/sites-available/sre-lab</code></pre>
+        <p>Contenido:</p>
+        <pre><code>server {
+    listen 80;
+    server_name _;
+    root /var/www/sre-lab/html;
+    index index.html;
+    autoindex off;
+    server_tokens off;
+    access_log /var/log/nginx/sre-lab-access.log json;
+    error_log /var/log/nginx/sre-lab-error.log;
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}</code></pre>
+    </div>
+    <div class="step-card">
+        <h3>5.3 Activar sitio</h3>
+        <pre><code>sudo ln -s /etc/nginx/sites-available/sre-lab /etc/nginx/sites-enabled/
+sudo unlink /etc/nginx/sites-enabled/default
+sudo nginx -t && sudo systemctl reload nginx</code></pre>
+    </div>
+
+    <!-- Fase 6 Autenticación -->
+    <h2>👤 Fase 6 – Autenticación básica y usuario webapp</h2>
+    <div class="step-card">
+        <h3>6.1 Crear archivo .htpasswd</h3>
+        <pre><code>sudo htpasswd -c /etc/nginx/.htpasswd admin</code></pre>
+        <p>Introduce una contraseña (por ejemplo <code>123</code>).</p>
+    </div>
+    <div class="step-card">
+        <h3>6.2 Agregar protección al sitio</h3>
+        <pre><code>sudo nano /etc/nginx/sites-available/sre-lab</code></pre>
+        <p>Dentro del bloque <code>location / {</code> añadir:</p>
+        <pre><code>auth_basic "Área Restringida";
+auth_basic_user_file /etc/nginx/.htpasswd;</code></pre>
+        <p>Recargar: <code>sudo nginx -t && sudo systemctl reload nginx</code></p>
+        <div class="verification">✅ <code>curl -u admin:contraseña http://localhost/</code> muestra el HTML.</div>
+    </div>
+    <div class="step-card">
+        <h3>6.3 Usuario dedicado webapp</h3>
+        <pre><code>sudo useradd -r -s /usr/sbin/nologin webapp
+sudo usermod -a -G www-data webapp
+sudo chown -R webapp:www-data /var/www/sre-lab</code></pre>
+    </div>
+
+    <!-- Fase 7 Aislamiento systemd (corregido) -->
+    <h2>🔒 Fase 7 – Aislamiento con systemd (sin errores)</h2>
+    <div class="step-card">
+        <h3>7.1 Crear directorio drop-in</h3>
+        <pre><code>sudo mkdir -p /etc/systemd/system/nginx.service.d</code></pre>
+    </div>
+    <div class="step-card">
+        <h3>7.2 Archivo de restricciones (rutas completas + directorios previos)</h3>
+        <p><strong>⚠️ Antes de escribir el override, crea los directorios que Nginx necesita escribir:</strong></p>
+        <pre><code>sudo mkdir -p /var/cache/nginx /var/lib/nginx
+sudo chown www-data:www-data /var/cache/nginx /var/lib/nginx</code></pre>
+        <p>Ahora crea el archivo:</p>
+        <pre><code>sudo nano /etc/systemd/system/nginx.service.d/override.conf</code></pre>
+        <p>Contenido <strong>probado y funcional</strong> (sin <code>ProtectSystem=strict</code> para evitar bloqueos, y con todas las rutas necesarias):</p>
+        <pre><code>[Service]
+MemoryMax=256M
+MemoryHigh=200M
+CPUQuota=50%
+PrivateTmp=yes
+NoNewPrivileges=yes
+ReadWritePaths=/var/log/nginx /var/www /etc/nginx/.htpasswd /run /var/cache/nginx /var/lib/nginx</code></pre>
+        <p><strong>Explicación:</strong> <code>ReadWritePaths</code> permite escritura solo en esas carpetas. <code>PrivateTmp</code> aísla /tmp. Sin <code>ProtectSystem</code> total para evitar problemas con permisos de pid y caché.</p>
+    </div>
+    <div class="step-card">
+        <h3>7.3 Recargar y reiniciar</h3>
+        <pre><code>sudo systemctl daemon-reload
+sudo systemctl restart nginx
+sudo systemctl status nginx --no-pager</code></pre>
+        <div class="verification">✅ Debe mostrar <code>active (running)</code> y las líneas <code>Memory: ... max: 256.0M</code>.</div>
+    </div>
+
+    <!-- Fase 8 Health Checks -->
+    <h2>🩺 Fase 8 – Health checks automáticos (cron + script)</h2>
+    <div class="step-card">
+        <h3>8.1 Script de verificación (usa autenticación)</h3>
+        <pre><code>sudo nano /usr/local/bin/health-check.sh</code></pre>
+        <pre><code>#!/bin/bash
+CHECK_URL="http://localhost/"
+HTTP_CODE=$(curl -u admin:123 -o /dev/null -s -w "%{http_code}" $CHECK_URL)
+if [ "$HTTP_CODE" = "200" ]; then
+    echo "OK - Nginx responde correctamente"
+    exit 0
+else
+    echo "CRITICAL - Nginx devuelve $HTTP_CODE"
+    exit 2
+fi</code></pre>
+        <p><code>sudo chmod +x /usr/local/bin/health-check.sh</code></p>
+        <div class="verification">✅ <code>sudo /usr/local/bin/health-check.sh</code> imprime <code>OK</code>.</div>
+    </div>
+    <div class="step-card">
+        <h3>8.2 Programar en cron cada 5 minutos</h3>
+        <pre><code>sudo crontab -e</code></pre>
+        <p>Añadir línea:</p>
+        <pre><code>*/5 * * * * /usr/local/bin/health-check.sh >> /var/log/health-check.log 2>&1</code></pre>
+        <div class="verification">✅ <code>sudo crontab -l</code> muestra la tarea. Esperar unos minutos y <code>cat /var/log/health-check.log</code> debe contener <code>OK</code>.</div>
+    </div>
+    <div class="step-card">
+        <h3>8.3 Script de métricas (opcional)</h3>
+        <pre><code>sudo nano /usr/local/bin/metrics.sh</code></pre>
+        <pre><code>#!/bin/bash
+NOW=$(date -Iseconds)
+REQUESTS=$(sudo cat /var/log/nginx/sre-lab-access.log | wc -l)
+ERRORS=$(sudo grep -c '"status": 5' /var/log/nginx/sre-lab-access.log || echo 0)
+echo "$NOW requests=$REQUESTS errors=$ERRORS" >> /var/log/metrics.log</code></pre>
+        <p><code>sudo chmod 750 /usr/local/bin/metrics.sh</code> y añadir al cron: <code>*/10 * * * * /usr/local/bin/metrics.sh</code></p>
+    </div>
+
+    <!-- Fase 9 Validación final con ab corregido -->
+    <h2>✅ Fase 9 – Validación final y pruebas de carga</h2>
+    <div class="step-card">
+        <h3>9.1 Probar acceso con autenticación</h3>
+        <pre><code>curl -u admin:123 http://localhost/</code></pre>
+        <div class="verification">✅ Devuelve <code>&lt;h1&gt;Bienvenido a SRE-LAB&lt;/h1&gt;</code></div>
+    </div>
+    <div class="step-card">
+        <h3>9.2 Verificar que sin contraseña da 401</h3>
+        <pre><code>curl http://localhost/</code></pre>
+        <div class="verification">✅ <code>401 Authorization Required</code></div>
+    </div>
+    <div class="step-card">
+        <h3>9.3 Backups presentes</h3>
+        <pre><code>ls -la /etc/nginx/snapshots/</code></pre>
+    </div>
+    <div class="step-card">
+        <h3>9.4 Prueba de carga con <code>ab</code> (ApacheBench) <span style="color:#f77;">CORREGIDO</span></h3>
+        <p><strong>❌ Error común:</strong> usar <code>-u admin:contraseña</code> (esa opción es para datos POST). El parámetro correcto para autenticación básica es <code>-A usuario:contraseña</code> (A mayúscula).</p>
+        <pre><code>ab -n 1000 -c 10 -A admin:123 http://localhost/</code></pre>
+        <p><strong>Interpretación de resultados:</strong></p>
+        <ul>
+            <li><code>Failed requests: 0</code> → sin errores.</li>
+            <li><code>Requests per second</code> → rendimiento (ideal > 500).</li>
+            <li><code>Time per request (mean)</code> → latencia media.</li>
+        </ul>
+        <div class="verification">✅ El test debe completar 1000 peticiones sin fallos.</div>
+    </div>
+    <div class="step-card">
+        <h3>9.5 Verificar límites de memoria después de la carga</h3>
+        <pre><code>systemctl show nginx | grep -E "MemoryMax|MemoryPeak"</code></pre>
+        <p><code>MemoryPeak</code> debe mostrar un valor menor o cercano a <code>MemoryMax</code> (256 MB).</p>
+    </div>
+
+    <!-- Fase 10 Producción -->
+    <h2>🚀 Fase 10 – Puesta en producción y documentación final</h2>
+    <div class="step-card">
+        <h3>10.1 Crear documento de acceso</h3>
+        <pre><code>sudo tee /root/README_DEPLOY.txt <<EOF
+=== SRE-LAB DEPLOYMENT ===
+URL: http://$(hostname -I | awk '{print $1}')
+Usuario: admin
+Contraseña: 123
+Archivo contraseñas: /etc/nginx/.htpasswd
+Backup: /etc/nginx/snapshots/
+Logs: /var/log/nginx/sre-lab-access.log
+Health checks: /var/log/health-check.log
+EOF
+sudo chmod 600 /root/README_DEPLOY.txt</code></pre>
+    </div>
+    <div class="step-card">
+        <h3>10.2 Validación automática final</h3>
+        <pre><code>echo "=== VALIDACIÓN ==="
+systemctl is-active nginx
+curl -s -o /dev/null -w "%{http_code}\n" -u admin:123 http://localhost/
+systemctl show nginx | grep MemoryMax</code></pre>
+        <div class="verification">✅ Todo correcto si ves <code>active</code>, <code>200</code>, y <code>MemoryMax=268435456</code>.</div>
+    </div>
+    <hr>
+    <p>🎉 <strong>Has completado el despliegue seguro de Nginx con hardening, aislamiento y monitorización.</strong>  
+    Este runbook ya incluye todas las correcciones aplicadas durante la práctica real: backup recursivo, formato JSON bien posicionado, rutas completas en systemd, y comando <code>ab -A</code>.</p>
+    <footer>Runbook generado para laboratorio SRE-LAB | Ubuntu 24.04 LTS | Revisión final 2026</footer>
+</div>
 </body>
 </html>
-EOF
-
-# Crear CHANGELOG
-sudo tee "$WEBROOT/CHANGELOG.md" > /dev/null <<'EOF'
-# Changelog - SRE Lab Nginx
-
-## [2.0.0] - 2024-01-15
-### Agregado
-- ✅ Logs en formato JSON con campos estructurados
-- ✅ Health check endpoint (`/health`)
-- ✅ Métricas Nginx (`/metrics` - localhost only)
-- ✅ Systemd hardening con ProtectSystem=strict
-- ✅ Autenticación HTTP Basic
-
-### Mejorado
-- 🚀 Compresión gzip automática
-- 🚀 Timeouts optimizados para seguridad
-- 🚀 Cabeceras de seguridad (X-Frame-Options, CSP)
-
-### Seguridad
-- 🔐 server_tokens off
-- 🔐 Denegación de archivos peligrosos
-- 🔐 Limites anti-DoS
-
----
-
-## [1.0.0] - 2023-12-01
-### Inicial
-- Instalación base de Nginx
-- Configuración de sitio estático
-EOF
-
-# Ajustar permisos
-sudo chown -R "$WEBAPP_USER:www-data" "$WEBROOT"
-sudo chmod 755 "$WEBROOT"
-sudo chmod 644 "$WEBROOT"/*.html "$WEBROOT"/*.md
-
-echo "✅ Contenido web desplegado"
-echo "📁 Archivos:"
-sudo ls -lh "$WEBROOT"
-```
-
----
-
-## 🔒 Etapa 4: Observabilidad & Monitoreo
-
-### 4.1 Hardening con Systemd
-
-**Editar:** Ejecutar `sudo systemctl edit nginx`
-
-```ini
-[Service]
-# ╔─ LÍMITES DE RECURSOS ─╗
-MemoryMax=256M              # Máximo de memoria RAM
-CPUQuota=75%                # Máximo uso de CPU
-
-# ╔─ AISLAMIENTO DEL SISTEMA DE ARCHIVOS ─╗
-ProtectSystem=strict        # Solo lectura en /usr, /etc, /boot
-ReadWritePaths=\
-  /var/lib/nginx \
-  /var/log/nginx \
-  /run \
-  /var/cache/nginx
-
-# ╔─ AISLAMIENTO DE RED ─╗
-PrivateDevices=yes          # No acceso a dispositivos
-NoNewPrivileges=yes         # No puede ganar privilegios
-
-# ╔─ AISLAMIENTO DE PROCESOS ─╗
-PrivateTmp=yes              # /tmp privado por proceso
-ProtectProc=invisible       # No ver otros procesos
-
-# ╔─ CONTROL DE CAPABILIDADES ─╗
-AmbientCapabilities=
-CapabilityBoundingSet=\
-  CAP_NET_BIND_SERVICE \
-  CAP_NET_RAW \
-  CAP_SYS_CHROOT
-
-# ╔─ LOGS & DIAGNÓSTICO ─╗
-StandardOutput=journal
-StandardError=journal
-SyslogIdentifier=nginx
-
-# ╔─ REINICIO AUTOMÁTICO ─╗
-Restart=on-failure
-RestartSec=5s
-StartLimitIntervalSec=60
-StartLimitBurst=3
-```
-
-**Aplicar cambios:**
-
-```bash
-echo "🔒 [ETAPA 4.1] Aplicando hardening Systemd..."
-sudo systemctl daemon-reload
-sudo systemctl restart nginx
-sudo systemctl status nginx --no-pager
-```
-
----
-
-### 4.2 Script de Health Check Automático
-
-**Crear:** `/usr/local/bin/check_nginx_health.sh`
-
-```bash
-#!/bin/bash
-
-################################################################################
-# Health Check: Nginx SRE Lab
-# Verifica:
-#   1. Proceso activo en systemd
-#   2. Puerto 80 en escucha (listener)
-#   3. Respuesta HTTP 200 en /health
-#   4. Ausencia de errores críticos recientes
-#   5. Uso de memoria < límite
-################################################################################
-
-set -o pipefail
-
-LOGFILE="/var/log/nginx_health.log"
-TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
-HOSTNAME=$(hostname)
-MEMORY_LIMIT_MB=256
-STATUS_OK=0
-STATUS_ERROR=1
-
-# Colores para salida
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
-
-log_message() {
-    echo "[$TIMESTAMP] $@" >> "$LOGFILE"
-}
-
-check_service_active() {
-    if systemctl is-active --quiet nginx; then
-        echo -e "${GREEN}✓${NC} Servicio nginx activo"
-        return 0
-    else
-        echo -e "${RED}✗${NC} Servicio nginx INACTIVO"
-        log_message "CRITICAL: nginx service is not active"
-        return 1
-    fi
-}
-
-check_port_listening() {
-    if ss -tulpn 2>/dev/null | grep -q ':80.*LISTEN'; then
-        echo -e "${GREEN}✓${NC} Puerto 80 en escucha"
-        return 0
-    else
-        echo -e "${RED}✗${NC} Puerto 80 NO está en escucha"
-        log_message "CRITICAL: port 80 not listening"
-        return 1
-    fi
-}
-
-check_http_response() {
-    HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost/health 2>/dev/null)
-    if [ "$HTTP_CODE" = "200" ]; then
-        echo -e "${GREEN}✓${NC} HTTP 200 en /health"
-        return 0
-    else
-        echo -e "${RED}✗${NC} HTTP $HTTP_CODE (esperado 200)"
-        log_message "WARNING: HTTP health endpoint returned $HTTP_CODE"
-        return 1
-    fi
-}
-
-check_error_logs() {
-    if tail -n 100 /var/log/nginx/error.log 2>/dev/null | grep -qi 'emerg'; then
-        echo -e "${RED}✗${NC} Errores CRÍTICOS en logs"
-        log_message "CRITICAL: Emergency errors in nginx error.log"
-        return 1
-    else
-        echo -e "${GREEN}✓${NC} Sin errores críticos recientes"
-        return 0
-    fi
-}
-
-check_memory_usage() {
-    MEMORY_PID=$(pidof nginx | awk '{print $1}')
-    if [ -n "$MEMORY_PID" ]; then
-        MEMORY_MB=$(ps aux | grep "[n]ginx" | awk '{sum+=$6} END {print int(sum/1024)}')
-        if [ "$MEMORY_MB" -lt "$MEMORY_LIMIT_MB" ]; then
-            echo -e "${GREEN}✓${NC} Memoria: ${MEMORY_MB}MB < ${MEMORY_LIMIT_MB}MB"
-            return 0
-        else
-            echo -e "${YELLOW}⚠${NC} Memoria elevada: ${MEMORY_MB}MB >= ${MEMORY_LIMIT_MB}MB"
-            log_message "WARNING: Memory usage high: ${MEMORY_MB}MB"
-            return 1
-        fi
-    fi
-}
-
-# ════════════════════════════════════════════════════════════════════════════
-
-main() {
-    echo ""
-    echo "════════════════════════════════════════════════════════════════"
-    echo "  🏥 NGINX HEALTH CHECK"
-    echo "  Host: $HOSTNAME | Time: $TIMESTAMP"
-    echo "════════════════════════════════════════════════════════════════"
-    echo ""
-    
-    FAILED=0
-    
-    check_service_active || ((FAILED++))
-    check_port_listening || ((FAILED++))
-    check_http_response || ((FAILED++))
-    check_error_logs || ((FAILED++))
-    check_memory_usage || ((FAILED++))
-    
-    echo ""
-    if [ $FAILED -eq 0 ]; then
-        echo -e "${GREEN}════════════════════════════════════════════════════════════════${NC}"
-        echo -e "${GREEN}✅ HEALTH CHECK PASSED - All systems nominal${NC}"
-        echo -e "${GREEN}════════════════════════════════════════════════════════════════${NC}"
-        log_message "OK: All checks passed"
-        return $STATUS_OK
-    else
-        echo -e "${RED}════════════════════════════════════════════════════════════════${NC}"
-        echo -e "${RED}❌ HEALTH CHECK FAILED - $FAILED check(s) failed${NC}"
-        echo -e "${RED}════════════════════════════════════════════════════════════════${NC}"
-        log_message "FAILED: $FAILED check(s) failed"
-        return $STATUS_ERROR
-    fi
-}
-
-main "$@"
-```
-
-**Instalar & Configurar:**
-
-```bash
-#!/bin/bash
-echo "📋 [ETAPA 4.2] Instalando health check automático..."
-
-# Copiar script
-sudo cp check_nginx_health.sh /usr/local/bin/
-sudo chmod 755 /usr/local/bin/check_nginx_health.sh
-
-# Crear log
-sudo touch /var/log/nginx_health.log
-sudo chmod 644 /var/log/nginx_health.log
-
-# Prueba manual
-echo "🧪 Ejecutando prueba:"
-sudo /usr/local/bin/check_nginx_health.sh
-
-# Programar en cron (cada 5 minutos)
-echo "*/5 * * * * root /usr/local/bin/check_nginx_health.sh >> /var/log/nginx_health.log 2>&1" | \
-    sudo tee /etc/cron.d/nginx_health
-
-sudo systemctl restart cron
-
-echo "✅ Health check programado cada 5 minutos"
-```
-
----
-
-### 4.3 Monitoreo de Logs JSON
-
-```bash
-#!/bin/bash
-echo "📊 [ETAPA 4.3] Configurando análisis de logs JSON..."
-
-# Ver logs en tiempo real
-echo "📝 Ver logs en vivo (presione Ctrl+C):"
-sudo tail -f /var/log/nginx/sre-lab.access.json | jq '.' 2>/dev/null || \
-    sudo tail -f /var/log/nginx/sre-lab.access.json
-
-# Análisis post-hoc
-echo ""
-echo "📈 Últimas 10 peticiones:"
-sudo tail -n 10 /var/log/nginx/sre-lab.access.json | jq -r '[.status, .request_method, .request_uri, .request_time] | @tsv'
-
-# Estadísticas por código de estado
-echo ""
-echo "📊 Distribución de códigos HTTP (últimas 1000 líneas):"
-sudo tail -n 1000 /var/log/nginx/sre-lab.access.json | jq -r '.status' | sort | uniq -c | sort -rn
-
-# Peticiones más lentas
-echo ""
-echo "🐌 Top 5 peticiones más lentas:"
-sudo tail -n 1000 /var/log/nginx/sre-lab.access.json | jq -r '[.request_time, .request_uri] | @csv' | sort -rn | head -5
-```
-
----
-
-## ✅ Etapa 5: Validación & Testing
-
-### 5.1 Checklist de Validación
-
-```bash
-#!/bin/bash
-echo "✅ [ETAPA 5] CHECKLIST DE VALIDACIÓN FINAL"
-echo "════════════════════════════════════════════════════════════════"
-
-CHECKS_PASSED=0
-CHECKS_TOTAL=0
-
-# Función auxiliar
-run_check() {
-    local name="$1"
-    local command="$2"
-    
-    ((CHECKS_TOTAL++))
-    echo ""
-    echo "[$CHECKS_TOTAL] $name"
-    if eval "$command" &>/dev/null; then
-        echo "    ✅ PASSED"
-        ((CHECKS_PASSED++))
-        return 0
-    else
-        echo "    ❌ FAILED"
-        return 1
-    fi
-}
-
-# Ejecución de checks
-run_check "Sintaxis Nginx válida" "sudo nginx -t"
-run_check "Servicio activo" "sudo systemctl is-active --quiet nginx"
-run_check "Puerto 80 en escucha" "sudo ss -tulpn | grep -q ':80.*LISTEN'"
-run_check "server_tokens off" "curl -s -I http://localhost/health | grep -qv 'Server: nginx'"
-run_check "Auth endpoint retorna 401" "curl -s -o /dev/null -w '%{http_code}' http://localhost/ | grep -q 401"
-run_check "Health endpoint retorna 200" "curl -s -o /dev/null -w '%{http_code}' http://localhost/health | grep -q 200"
-run_check ".htpasswd existe" "sudo test -f /etc/nginx/.htpasswd"
-run_check "Archivo de logs JSON existe" "sudo test -f /var/log/nginx/sre-lab.access.json"
-run_check "Health check script existe" "sudo test -x /usr/local/bin/check_nginx_health.sh"
-run_check "Cron job configurado" "sudo test -f /etc/cron.d/nginx_health"
-
-echo ""
-echo "════════════════════════════════════════════════════════════════"
-echo "Resultado: $CHECKS_PASSED / $CHECKS_TOTAL checks pasaron"
-if [ $CHECKS_PASSED -eq $CHECKS_TOTAL ]; then
-    echo "🎉 ¡VALIDACIÓN COMPLETA!"
-else
-    echo "⚠️  Revisar checks fallidos arriba"
-fi
-echo "════════════════════════════════════════════════════════════════"
-```
-
----
-
-### 5.2 Prueba de Carga (Apache Bench)
-
-```bash
-#!/bin/bash
-echo "🔫 [ETAPA 5.2] PRUEBA DE CARGA - Apache Benchmark"
-echo "════════════════════════════════════════════════════════════════"
-
-# Parámetros
-TARGET="http://127.0.0.1/health"
-REQUESTS=1000
-CONCURRENCY=50
-USERNAME="sre_admin"
-PASSWORD="your_password_here"  # ⚠️ CAMBIAR
-
-echo "Target: $TARGET"
-echo "Requests: $REQUESTS"
-echo "Concurrency: $CONCURRENCY"
-echo ""
-
-# Ejecución
-ab -n $REQUESTS \
-   -c $CONCURRENCY \
-   -A "$USERNAME:$PASSWORD" \
-   "$TARGET"
-
-# Análisis de logs post-test
-echo ""
-echo "📊 Análisis de respuesta en logs:"
-tail -n 100 /var/log/nginx/sre-lab.access.json | jq -r '.request_time' | \
-    awk '{sum+=$1; if ($1 > max || NR==1) max=$1; if ($1 < min || NR==1) min=$1} 
-          END {printf "Min: %.3fs | Max: %.3fs | Avg: %.3fs\n", min, max, sum/NR}'
-```
-
-**Interpretación de resultados:**
-
-```
-Requests per second:   285 [#/sec]        ← Throughput
-Time per request:      175 [ms]           ← Latencia promedio
-Transfer rate:         125 [Kbytes/sec]   ← Bandwidth
-Failed requests:       0                  ← 100% éxito ✅
-```
-
----
-
-## 🔄 Recuperación de Fallos
-
-### Escenario 1: Configuración Corrupta
-
-```bash
-#!/bin/bash
-echo "⚠️ [FAILOVER] Corrupción de configuración detectada"
-echo "════════════════════════════════════════════════════════════════"
-
-BKP_DIR="/var/backups/nginx_$(ls -t /var/backups | grep nginx | head -1 | grep -oE '[0-9-_]*')"
-
-echo "Restaurando desde backup: $BKP_DIR"
-echo ""
-
-# Parar servicio
-sudo systemctl stop nginx
-echo "✓ Nginx detenido"
-
-# Restaurar
-sudo cp "$BKP_DIR/nginx.conf" /etc/nginx/
-sudo cp -r "$BKP_DIR/sites-available"/* /etc/nginx/sites-available/ 2>/dev/null || true
-echo "✓ Configuración restaurada"
-
-# Validar
-if sudo nginx -t &>/dev/null; then
-    echo "✓ Sintaxis válida"
-    # Iniciar
-    sudo systemctl start nginx
-    echo "✓ Nginx reiniciado"
-    echo ""
-    echo "✅ RECUPERACIÓN EXITOSA (RTO < 30s)"
-else
-    echo "❌ ERROR: Configuración de backup también corrupta"
-    exit 1
-fi
-```
-
-### Escenario 2: Ngix No Responde
-
-```bash
-#!/bin/bash
-echo "⚠️ [FAILOVER] Nginx no responde"
-echo "════════════════════════════════════════════════════════════════"
-
-# Verificar proceso
-if ! pgrep -x "nginx" > /dev/null; then
-    echo "Proceso no encontrado. Iniciando..."
-    sudo systemctl start nginx
-    sleep 2
-    
-    if curl -s -o /dev/null -w "%{http_code}" http://localhost/health | grep -q 200; then
-        echo "✅ Servicio recuperado"
-        exit 0
-    fi
-fi
-
-# Si llega aquí: reinicio hard
-echo "Reinicio hard..."
-sudo systemctl restart nginx
-sleep 3
-
-if systemctl is-active --quiet nginx; then
-    echo "✅ RECUPERACIÓN EXITOSA"
-else
-    echo "❌ FALLO CRÍTICO - Escalación requerida"
-    exit 1
-fi
-```
-
----
-
-## 📈 Diagrama de Recuperación
-
-```mermaid
-flowchart TD
-    A["⚠️ Alert Detectada<br/>(Health Check)"] --> B{"¿Qué tipo?"}
-    
-    B -->|"Error en logs"| C["Revisar /var/log/nginx/error.log"]
-    C --> D["¿Syntax error?"]
-    D -->|"Sí"| E["Restaurar backup"]
-    D -->|"No"| F["Analizar & Parchear"]
-    
-    B -->|"No responde"| G["Verificar proceso"]
-    G --> H{"¿PID existe?"}
-    H -->|"No"| I["Reiniciar servicio"]
-    H -->|"Sí"| J["Verificar puerto 80"]
-    
-    B -->|"Lento"| K["Revisar métricas<br/>/metrics"]
-    K --> L["¿Memory leak?"]
-    L -->|"Sí"| M["Reinicio suave<br/>systemctl reload"]
-    L -->|"No"| N["Verificar carga"]
-    
-    I --> O{"¿Arranca?"}
-    O -->|"Sí"| P["✅ OK"]
-    O -->|"No"| Q["Escalación<br/>Critical"]
-    
-    E --> R{"¿Sintaxis OK?"}
-    R -->|"Sí"| S["Restart"]
-    R -->|"No"| Q
-    
-    S --> P
-    
-    style A fill:#ffe0e0
-    style P fill:#e0ffe0
-    style Q fill:#ff9999
-```
-
----
-
-## 🎯 Checklist Final de Despliegue
-
-| Componente | Estado | Comando Verificación |
-|:-----------|:------:|:---------------------|
-| **Instalación** | ✅ | `apt list --installed \| grep nginx` |
-| **Servicio** | ✅ | `systemctl status nginx --no-pager` |
-| **Puertos** | ✅ | `ss -tulpn \| grep :80` |
-| **Backup** | ✅ | `ls -lah /var/backups/nginx_*` |
-| **Config Hardened** | ✅ | `sudo nginx -T \| grep server_tokens` |
-| **Virtual Host** | ✅ | `sudo nginx -T \| grep sre-lab` |
-| **Logs JSON** | ✅ | `tail /var/log/nginx/sre-lab.access.json \| jq` |
-| **Auth** | ✅ | `curl -I http://localhost/` |
-| **Health Endpoint** | ✅ | `curl http://localhost/health` |
-| **Métricas** | ✅ | `curl http://127.0.0.1/metrics` |
-| **Systemd Hardened** | ✅ | `systemctl show nginx \| grep Memory` |
-| **Health Check Cron** | ✅ | `cat /etc/cron.d/nginx_health` |
-
----
-
-## 📚 Referencias Avanzadas
-
-### Seguridad
-- [OWASP Top 10 Nginx](https://github.com/nmap/nmap)
-- [CIS Nginx Benchmark](https://www.cisecurity.org/)
-- [Mozilla SSL Configuration](https://ssl-config.mozilla.org/)
-
-### Observabilidad
-- [Prometheus Nginx Exporter](https://github.com/nginx-proxy/nginx-prometheus-exporter)
-- [Loki + Promtail para logs JSON](https://grafana.com/loki/)
-- [ELK Stack integration](https://www.elastic.co/)
-
-### Rendimiento
-- [Nginx Tuning Guide](https://nginx.org/en/docs/)
-- [Linux Kernel Tuning](https://www.kernel.org/doc/html/latest/networking/)
-
----
-
-## 📞 Soporte & Escalación
-
-**Contacto SRE On-Call:**
-- 🚨 **Critical (P1)**: +56 22 1234 5678
-- ⚠️ **High (P2)**: ops-team@company.com
-- 📋 **Normal (P3)**: #ops-slack
-
-**Documentación Relacionada:**
-- [Runbook Master Index](../RUNBOOKS.md)
-- [Incident Response Plan](../INCIDENT_RESPONSE.md)
-- [Disaster Recovery Plan](../DR_PLAN.md)
-
----
-
-<div align="center">
-
-**Documento Versión 2.0.0**  
-Actualizado: 2024-01-15  
-Autor: SRE Team  
-Status: ✅ Production Ready
-
-[⬆ Ir al inicio](#-runbook-despliegue-de-infraestructura-web-robusta-con-nginx)
-
-</div>
-
