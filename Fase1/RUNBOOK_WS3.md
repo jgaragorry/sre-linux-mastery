@@ -191,6 +191,13 @@ df -h     # espacio
 df -i     # inodos (CRÍTICO para archivos pequeños)
 ```
 
+## 📈 Verificar el size del bloque de datos y de inodos
+
+```bash
+sudo tune2fs -l /dev/sda3 | grep -i "Block size"
+sudo tune2fs -l /dev/sdXN | grep -i "Inode size"
+sudo tune2fs -l /dev/sdXN | egrep -i "Block size|Inode size|Inode count|Inodes per group"
+
 ---
 
 ## 🧠 Buenas Prácticas SRE
