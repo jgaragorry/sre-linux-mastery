@@ -210,7 +210,6 @@ sudo tune2fs -l /dev/sdXN | egrep -i "Block size|Inode size|Inode count|Inodes p
 - 🔍 **Siempre validar con e2fsck tras conversiones**
 
 ---
-
 ## 🧩 Resumen Ejecutivo
 
 ```mermaid
@@ -223,7 +222,6 @@ flowchart TD
     D --> G[EXT4 Modern]
     G --> H[Best SRE Choice]
 ```
-
 ---
 
 ## ✅ Checklist Operacional
