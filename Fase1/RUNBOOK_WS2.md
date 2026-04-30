@@ -100,7 +100,7 @@ http {
 ```bash
 sudo useradd -m -s /usr/sbin/nologin webapp
 sudo mkdir -p /var/www/sre-lab
-sudo chown -R webapp:webapp /var/www/sre-lab
+sudo chown -R webapp:www-data /var/www/sre-lab
 sudo chmod 750 /var/www/sre-lab
 ```
 
@@ -113,7 +113,7 @@ sudo chown root:www-data /etc/nginx/.htpasswd
 ```
 
 ### C. Virtual Host
-
+/etc/nginx/sites-available/sre-lab
 ```nginx
 server {
     listen 80;
@@ -153,42 +153,54 @@ sudo rm /etc/nginx/sites-enabled/default
 
 ## 6️⃣ Contenido Web
 
-```html
+```bash
+sudo tee /var/www/sre-lab/index.html <<EOF
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <style>
-body { background: linear-gradient(135deg,#1e3a8a,#3b82f6); color:white; font-family:sans-serif; height:100vh; display:flex; align-items:center; justify-content:center; margin:0;}
-.card { background:rgba(255,255,255,0.1); padding:2rem; border-radius:1rem; backdrop-filter:blur(10px);}
+body { background: linear-gradient(135deg,#1e3a8a,#3b82f6); color:white; font-family:sans-serif; height:100vh; display:flex; align-items:center; justify-content:center; }
+.card { background:rgba(255,255,255,0.1); padding:2rem; border-radius:1rem; backdrop-filter:blur(10px); }
 </style>
 </head>
 <body>
 <div class="card">
-<h1>🚀 SRE Lab: Nginx Hardened</h1>
-<p>✔ Servidor Activo</p>
-<p>✔ Auth habilitada</p>
-<p>✔ Logs JSON</p>
+<h1> SRE Lab: Nginx Hardened</h1>
+<p> Servidor Activo</p>
+<p> Auth habilitada</p>
+<p> Logs JSON</p>
 </div>
 </body>
 </html>
+EOF
+
+sudo chown webapp:www-data /var/www/sre-lab/index.html
+sudo chmod 640 /var/www/sre-lab/index.html
 ```
 
 ---
 
 ## 7️⃣ Hardening Systemd
 
-```bash
-sudo systemctl edit nginx
-```
+Aumentaremos la resiliencia limitando recursos a nivel kernel. Ejecute sudo systemctl edit nginx y añada:
 
-```ini
+```bash
+sudo mkdir -p /etc/systemd/system/nginx.service.d
+sudo tee /etc/systemd/system/nginx.service.d/override.conf <<EOF
 [Service]
 MemoryMax=256M
 ProtectSystem=strict
-ReadWritePaths=/var/lib/nginx /var/log/nginx /run /var/cache/nginx
+ReadWritePaths=/var/lib/nginx /var/log/nginx /run /var/cache/nginx /etc/nginx /var/run
 PrivateTmp=yes
 NoNewPrivileges=yes
+EOF
+
+sudo mkdir -p /var/cache/nginx
+sudo chown www-data:www-data /var/cache/nginx
+
+sudo systemctl daemon-reload
+sudo systemctl restart nginx
 ```
 
 ---
@@ -196,7 +208,7 @@ NoNewPrivileges=yes
 ## 8️⃣ Health Check Automatizado
 
 ```bash
-sudo nano /usr/local/bin/check_nginx_health.sh
+sudo vi /usr/local/bin/check_nginx_health.sh
 ```
 
 ```bash
