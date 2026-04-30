@@ -216,14 +216,14 @@ sudo vi /usr/local/bin/check_nginx_health.sh
 
 systemctl is-active --quiet nginx || exit 1
 ss -tulpn | grep -q :80 || exit 1
-curl -s -o /dev/null -w "%{http_code}" http://localhost/ | grep -q 200 || exit 1
+curl -s -o /dev/null -w "%{http_code}" -u sre_admin:123 http://localhost/ | grep -q 200 || exit 1
 ! tail -n 50 /var/log/nginx/error.log | grep -q "emerg" || exit 1
 
 echo "Health OK - $(date)"
 ```
 
 ```bash
-sudo chmod +x /usr/local/bin/check_nginx_health.sh
+sudo chmod 750 /usr/local/bin/check_nginx_health.sh
 ```
 
 ### Cron
@@ -240,7 +240,7 @@ echo "*/5 * * * * root /usr/local/bin/check_nginx_health.sh >> /var/log/nginx_he
 sudo nginx -t
 sudo systemctl reload nginx
 
-ab -n 100 -c 10 -A sre_admin:tu_password http://127.0.0.1/
+ab -n 100 -c 10 -A sre_admin:123 http://127.0.0.1/
 
 tail -f /var/log/nginx/sre-lab.access.json
 ```
