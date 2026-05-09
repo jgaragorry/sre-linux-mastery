@@ -341,9 +341,9 @@ Resultado esperado:
 ```mermaid
 flowchart LR
 
-    A[/var/] --> B[tar relativo]
-    B --> C[Compresión BZIP2]
-    C --> D[/backups]
+    A["/var/"] --> B["tar relativo"]
+    B --> C["Compresión BZIP2"]
+    C --> D["/backups"]
 
     classDef src fill:#1e3a8a,stroke:#60a5fa,color:#ffffff,stroke-width:2px;
     classDef proc fill:#78350f,stroke:#facc15,color:#ffffff,stroke-width:2px;
@@ -401,8 +401,8 @@ Restaurar el contenido respaldado hacia `/restore`.
 ```mermaid
 flowchart LR
 
-    A[/backups Backup] --> B[Extracción TAR]
-    B --> C[/restore]
+    A["/backups Backup"] --> B["Extracción TAR"]
+    B --> C["/restore"]
 
     classDef src fill:#7c2d12,stroke:#fb923c,color:#ffffff,stroke-width:2px;
     classDef proc fill:#0f172a,stroke:#38bdf8,color:#ffffff,stroke-width:2px;
@@ -534,20 +534,20 @@ Agregar:
 flowchart TD
 
     subgraph STORAGE
-        A[sdb5 EXT4]
-        B[sdc5 EXT4]
-        C[loop2 SWAP]
+        A["sdb5 EXT4"]
+        B["sdc5 EXT4"]
+        C["loop2 SWAP"]
     end
 
     subgraph MOUNTS
-        D[/backups]
-        E[/restore]
+        D["/backups"]
+        E["/restore"]
     end
 
     subgraph OPERATIONS
-        F[Backup /var]
-        G[Restore Data]
-        H[Swap Extension]
+        F["Backup /var"]
+        G["Restore Data"]
+        H["Swap Extension"]
     end
 
     A --> D
