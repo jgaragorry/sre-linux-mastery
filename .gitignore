@@ -10,6 +10,8 @@
 *.tfstate.*
 crash.log
 crash.*
+*.tfplan
+*.tfplan.binary
 
 # Ignorar el archivo de reversión o respaldo local
 *.tfstate.backup
@@ -42,6 +44,8 @@ hcl.tfvars
 .infracost/
 infracost-report.json
 infracost-report.html
+*reporte*.json
+*.json.log
 
 # ------------------------------------------------------------------------------
 # 4. ENTORNO LOCAL Y EDITORES (WSL, Linux, VSCode, Vim)

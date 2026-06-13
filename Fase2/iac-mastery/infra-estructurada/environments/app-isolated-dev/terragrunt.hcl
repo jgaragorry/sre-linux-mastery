@@ -1,5 +1,8 @@
+# Línea 1: Atributo global, completamente afuera de cualquier bloque
+terraform_binary = "terraform"
+
 terraform {
-  # Apuntamos al nuevo módulo de red aislada
+# Apuntamos al nuevo módulo de red aislada
   source = "../../modules/app-red-aislada"
 }
 

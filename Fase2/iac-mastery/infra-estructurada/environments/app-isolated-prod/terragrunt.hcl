@@ -1,3 +1,6 @@
+# Línea 1: Atributo global, completamente afuera de cualquier bloque
+terraform_binary = "terraform"
+
 terraform {
   source = "../../modules/app-red-aislada"
 }
