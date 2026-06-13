@@ -1,28 +1,14 @@
-# 1. Definir el Proveedor (El traductor que interactúa con Docker)
-terraform {
-  required_providers {
-    docker = {
-      source  = "kreuzwerker/docker"
-      version = "~> 3.0.1"
-    }
-  }
+resource "docker_image" "nginx_base" {
+  name         = "nginx:1.25.4-alpine"
+  keep_locally = true # Al destruir el contenedor, conserva la imagen en disco
 }
 
-provider "docker" {}
-
-# 2. Descargar la imagen de Nginx desde Docker Hub
-resource "docker_image" "nginx_image" {
-  name         = "nginx:latest"
-  keep_locally = false
-}
-
-# 3. Crear y encender el contenedor usando la imagen descargada
-resource "docker_container" "nginx_server" {
-  image = docker_image.nginx_image.image_id
+resource "docker_container" "servidor_estatico" {
   name  = "servidor-web-clase"
+  image = docker_image.nginx_base.image_id
 
   ports {
-    internal = 80
-    external = 8080
+    internal = 80   # Puerto dentro del contenedor
+    external = 8080 # Puerto en tu máquina local
   }
 }
