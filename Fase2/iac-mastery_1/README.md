@@ -38,38 +38,52 @@ staging/main.tf  (298 líneas)          environments/{dev,prod}/terragrunt.hcl
 
 ### Capas del sistema
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    GOBERNANZA GLOBAL                        │
-│  📄 terragrunt.hcl (raíz)                                  │
-│  ├─ Fija la versión exacta de Terraform                     │
-│  ├─ Genera bloques `provider` automáticamente               │
-│  └─ Aplica políticas a TODOS los entornos                   │
-└───────────────────────┬─────────────────────────────────────┘
-                        │ hereda
-          ┌─────────────┴──────────────┐
-          ▼                            ▼
-┌─────────────────┐          ┌─────────────────┐
-│  🟡 DEV         │          │  🟠 PROD        │
-│  Puerto: 8081   │          │  Puerto: 8082   │
-│  env.hcl → dev  │          │  env.hcl → prod │
-└────────┬────────┘          └────────┬────────┘
-         │ instancia                  │ instancia
-         └──────────┬─────────────────┘
-                    ▼
-         ┌────────────────────┐
-         │  📦 MÓDULO BASE    │
-         │  contenedor-base/  │
-         │  (inmutable, DRY)  │
-         └────────┬───────────┘
-                  │ crea
-        ┌─────────┴─────────┐
-        ▼                   ▼
-┌──────────────┐   ┌──────────────┐
-│🐳 nginx-dev  │   │🐳 nginx-prod │
-│ :8081 → 80  │   │ :8082 → 80  │
-└──────────────┘   └──────────────┘
-```
+```mermaid
+flowchart TD
+    %% Configuración de subgráficos para agrupar capas conceptuales
+    subgraph Capa_Gobernanza ["⚙️ CAPA DE GOBERNANZA GLOBAL"]
+        Root["📄 terragrunt.hcl (Raíz)<br>• Fija versión de Terraform<br>• Genera provider.tf dinámico<br>• Inyecta políticas compartidas"]
+    end
+
+    subgraph Capa_Contextos ["🌿 CAPA DE ENTORNOS (Hojas DRY)"]
+        direction LR
+        Dev["🟡 AMBIENTE DEV<br>• Puerto Host: 8081<br>• Contexto: env.hcl (dev)"]
+        Prod["🟠 AMBIENTE PROD<br>• Puerto Host: 8082<br>• Contexto: env.hcl (prod)"]
+    end
+
+    subgraph Capa_Inmutable ["🧱 CÓDIGO CORE INMUTABLE"]
+        Module["📦 modules/contenedor-base/<br>• main.tf (Agnóstico)<br>• variables.tf & outputs.tf<br>• Pattern: 100% DRY"]
+    end
+
+    subgraph Capa_Runtime ["🐳 RUNTIME LIVE (Motor Docker)"]
+        direction LR
+        ContDev["🐳 sre-app-nginx-dev<br>Mapeo: :8081 ➔ :80<br>Label: env=dev"]
+        ContProd["🐳 sre-app-nginx-prod<br>Mapeo: :8082 ➔ :80<br>Label: env=prod"]
+    end
+
+    %% Relaciones y Flujos Lógicos de Inyección
+    Root ==>|1. Hereda Gobernanza| Dev
+    Root ==>|1. Hereda Gobernanza| Prod
+    
+    Dev -->|2. Instancia con Inputs| Module
+    Prod -->|2. Instancia con Inputs| Module
+    
+    Module -->|3. Crea Contenedor Aislado| ContDev
+    Module -->|3. Crea Contenedor Aislado| ContProd
+
+    %% Estilos Avanzados de Clases (Colores Modernos e Identificables)
+    style Root fill:#1E90FF,stroke:#0A5C9E,stroke-width:2px,color:#fff
+    style Dev fill:#FFF4CE,stroke:#DEB22C,stroke-width:2px,color:#000
+    style Prod fill:#FFE6D5,stroke:#E67E22,stroke-width:2px,color:#000
+    style Module fill:#E8F8F5,stroke:#2ECC71,stroke-width:2px,color:#000
+    style ContDev fill:#EBF5FB,stroke:#3498DB,stroke-width:2px,color:#000
+    style ContProd fill:#EBF5FB,stroke:#2980B9,stroke-width:2px,color:#000
+
+    %% Estilos de los Subgráficos
+    style Capa_Gobernanza fill:#F8F9F9,stroke:#BDC3C7,stroke-dasharray: 5 5
+    style Capa_Contextos fill:#F8F9F9,stroke:#BDC3C7,stroke-dasharray: 5 5
+    style Capa_Inmutable fill:#F8F9F9,stroke:#BDC3C7,stroke-dasharray: 5 5
+    style Capa_Runtime fill:#F4F6F6,stroke:#7F8C8D,stroke-width:2px
 
 ### Flujo de herencia HCL
 
