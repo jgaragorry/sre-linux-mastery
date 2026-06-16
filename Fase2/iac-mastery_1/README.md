@@ -84,6 +84,7 @@ flowchart TD
     style Capa_Contextos fill:#F8F9F9,stroke:#BDC3C7,stroke-dasharray: 5 5
     style Capa_Inmutable fill:#F8F9F9,stroke:#BDC3C7,stroke-dasharray: 5 5
     style Capa_Runtime fill:#F4F6F6,stroke:#7F8C8D,stroke-width:2px
+```
 
 ### Flujo de herencia HCL
 
