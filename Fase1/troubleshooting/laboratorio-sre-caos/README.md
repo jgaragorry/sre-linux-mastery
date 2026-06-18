@@ -107,12 +107,16 @@ flowchart LR
 
 ### `PASO 1` — Desplegar la Infraestructura Base
 
+> ⚠️ **REGLA DE ORO DE VAGRANT:** Todos los comandos de Vagrant (`up`, `status`, `destroy`) **solo** funcionarán si estás parado exactamente dentro de la carpeta donde reside el archivo `Vagrantfile`.
+
 ```bash
 # 1. Clona el repositorio
 git clone <url-del-repositorio>
-cd <nombre-del-repositorio>
 
-# 2. Levanta la VM (se abrirá VirtualBox automáticamente)
+# 2. MUÉVETE EN LA TERMINAL AL DIRECTORIO DEL LABORATORIO (CRÍTICO)
+cd <nombre-del-repositorio>/Fase1/troubleshooting/laboratorio-sre-caos
+
+# 3. Levanta la VM desde esta carpeta específica
 vagrant up
 ```
 
@@ -284,7 +288,7 @@ sequenceDiagram
 
 ## 🔄 Reiniciar el Laboratorio
 
-Si quieres empezar desde cero:
+Si quieres empezar desde cero, asegúrate de estar dentro de la carpeta `Fase1/troubleshooting/laboratorio-sre-caos` y ejecuta:
 
 ```bash
 # Destruir la VM completamente
