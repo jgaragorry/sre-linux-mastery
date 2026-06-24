@@ -311,7 +311,7 @@ if [ -d "$PROD_PATH" ]; then
 fi
 echo "====================================================================="
 EOF
-chmod +x scripts/estimar_costos.sh
+chmod 750 scripts/estimar_costos.sh
 ```
 
 ### 2️⃣ Ejecutar el análisis financiero
@@ -370,8 +370,6 @@ cd ~/sre-linux-mastery/Fase2/iac-mastery_4/environments/prod/ssm-param
 terragrunt apply -auto-approve
 ```
 
-> [!CAUTION]
-> El flag `--terragrunt-non-interactive` **omite la confirmación manual** (`yes`) antes de aplicar cambios. Es ideal para pipelines de CI/CD, pero en uso manual implica que **no habrá una segunda oportunidad para detener el `apply`** una vez ejecutado el comando. Úsalo con pleno conocimiento del plan que se va a aplicar.
 
 ✅ **Checkpoint Fase 3:** verifica en la consola de AWS (o vía `aws ssm get-parameter --name /config/dev/database_url`) que los parámetros SSM y las instancias RDS simuladas existen en ambos entornos.
 
