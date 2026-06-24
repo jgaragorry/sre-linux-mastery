@@ -384,7 +384,7 @@ terragrunt apply -auto-approve
 ```mermaid
 flowchart TD
     subgraph Destroy["🔥 Destrucción de Infraestructura"]
-        A["terragrunt run-all destroy<br/>(dev/ssm-param)"] --> B["terragrunt run-all destroy<br/>(prod/ssm-param)"]
+        A["terragrunt destroy<br/>(dev/ssm-param)"] --> B["terragrunt destroy<br/>(prod/ssm-param)"]
     end
     subgraph Backend["🗄️ Purga del Backend Remoto"]
         C["Listar versiones S3<br/>+ marcadores de borrado"] --> D["Eliminar objetos<br/>permanentemente"]
@@ -405,10 +405,10 @@ flowchart TD
 
 ```bash
 cd ~/sre-linux-mastery/Fase2/iac-mastery_4/environments/dev/ssm-param
-terragrunt run-all destroy --terragrunt-non-interactive
+terragrunt destroy 
 
 cd ~/sre-linux-mastery/Fase2/iac-mastery_4/environments/prod/ssm-param
-terragrunt run-all destroy --terragrunt-non-interactive
+terragrunt destroy 
 ```
 
 ### 2️⃣ Purgar el almacenamiento remoto histórico (S3 + DynamoDB)
