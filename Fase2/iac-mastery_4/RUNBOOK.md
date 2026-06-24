@@ -360,14 +360,14 @@ flowchart TD
 
 ```bash
 cd ~/sre-linux-mastery/Fase2/iac-mastery_4/environments/dev/ssm-param
-terragrunt run-all apply --terragrunt-non-interactive
+terragrunt apply -auto-approve
 ```
 
 ### 2️⃣ Desplegar Producción (PROD)
 
 ```bash
 cd ~/sre-linux-mastery/Fase2/iac-mastery_4/environments/prod/ssm-param
-terragrunt run-all apply --terragrunt-non-interactive
+terragrunt apply -auto-approve
 ```
 
 > [!CAUTION]
