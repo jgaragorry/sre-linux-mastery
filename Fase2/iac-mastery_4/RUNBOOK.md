@@ -341,12 +341,12 @@ chmod +x scripts/estimar_costos.sh
 ```mermaid
 flowchart TD
     A["✅ Presupuesto Aprobado"] --> B["📁 cd environments/dev/ssm-param"]
-    B --> C["terragrunt run-all apply<br/>--terragrunt-non-interactive"]
+    B --> C["terragrunt apply<br/>-auto-approve"]
     C --> D{"¿Apply exitoso?"}
     D -- Sí --> E["📁 cd environments/prod/ssm-param"]
     D -- No --> F["🛑 Revisar logs y corregir"]
     F --> B
-    E --> G["terragrunt run-all apply<br/>--terragrunt-non-interactive"]
+    E --> G["terragrunt apply<br/>-auto-approve"]
     G --> H{"¿Apply exitoso?"}
     H -- Sí --> I["☁️ Recursos vivos en AWS<br/>SSM Parameter + RDS simulada"]
     H -- No --> F
@@ -405,10 +405,10 @@ flowchart TD
 
 ```bash
 cd ~/sre-linux-mastery/Fase2/iac-mastery_4/environments/dev/ssm-param
-terragrunt destroy 
+terragrunt destroy -auto-approve
 
 cd ~/sre-linux-mastery/Fase2/iac-mastery_4/environments/prod/ssm-param
-terragrunt destroy 
+terragrunt destroy -auto-approve
 ```
 
 ### 2️⃣ Purgar el almacenamiento remoto histórico (S3 + DynamoDB)
