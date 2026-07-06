@@ -20,7 +20,7 @@ variable "replica_count" { type = number }
 
 resource "docker_image" "nginx" {
   name         = "nginx:alpine"
-  keep_locally = false
+  keep_locally = true # <--- Cambiar de false a true
 }
 
 # Servidores Web de la Aplicación
