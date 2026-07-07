@@ -1,4 +1,8 @@
 # ~/sre-linux-mastery/Fase2/iac-mastery_7/root.hcl
+
+# Forzar de forma nativa que todo el laboratorio use el binario oficial de Terraform
+terraform_binary = "terraform"
+
 remote_state {
   backend = "s3"
   config = {
