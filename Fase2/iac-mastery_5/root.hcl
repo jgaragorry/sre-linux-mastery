@@ -1,3 +1,6 @@
+# Forzar el uso del binario oficial de HashiCorp Terraform
+terraform_binary = "/usr/local/bin/terraform"
+
 remote_state {
   backend = "s3"
   config = {

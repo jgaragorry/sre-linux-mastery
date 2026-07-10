@@ -1,78 +1,97 @@
 # ==============================================================================
-# .gitignore PROFESIONAL - Flujo SRE (Terraform, Terragrunt, Docker & Infracost)
+#   .gitignore PROFESIONAL UNIFICADO - FLUJO SRE & IaC MONOREPO
+# ==============================================================================
+# Diseñado para gobernar múltiples laboratorios y carpetas de forma recursiva.
+# Garantiza la exclusión de secretos, estados locales, archivos temporales y cachés.
 # ==============================================================================
 
 # ------------------------------------------------------------------------------
-# 1. TERRAFORM (Archivos de Estado y Binarios locales)
+# 1. TERRAFORM / OPENTOFU (Estados locales y binarios)
 # ------------------------------------------------------------------------------
-# NUNCA subas el estado local; contiene secretos de infraestructura en texto plano.
-*.tfstate
-*.tfstate.*
-crash.log
-crash.*
-*.tfplan
-*.tfplan.binary
+# El doble asterisco (**/) asegura que se aplique a cualquier subcarpeta de laboratorio
+**/.terraform/
+**/.terraform.lock.hcl
 
-# Ignorar el archivo de reversión o respaldo local
-*.tfstate.backup
+# NUNCA subir el estado local; contiene secretos de infraestructura en texto plano
+**/*.tfstate
+**/*.tfstate.*
+**/*.tfstate.backup
 
-# Ignorar archivos de configuración de variables locales (pueden contener contraseñas)
-*.tfvars
-*.tfvars.json
-hcl.tfvars
+# Archivos de log y reportes de fallos del motor de ejecución
+**/crash.log
+**/crash.*
+**/*.log
 
-# Ignorar archivos de variables personalizadas de desarrollo
-*.local.tfvars
-
-# Ignorar la carpeta oculta donde Terraform descarga los providers (los "traductores")
-.terraform/
-
-# Ignorar archivos de bloqueo de CLI (generados en ejecuciones locales)
-.terraform.lock.hcl
+# Archivos de plano binarios compilados (Contienen variables sensibles inyectadas en disco)
+**/tfplan
+**/tfplan.binary
+**/*.tfplan
+**/*.tfplan.binary
 
 # ------------------------------------------------------------------------------
-# 2. TERRAGRUNT (Caché dinámica)
+# 2. TERRAGRUNT (Cachés dinámicas pesadas)
 # ------------------------------------------------------------------------------
-# Terragrunt descarga los módulos en carpetas temporales `.terragrunt-cache`.
-# Subir esto rompería el repositorio y pesaría gigabytes.
-.terragrunt-cache/
+# Terragrunt descarga módulos enteros en estas carpetas ocultas. 
+# Bloquearlas de raíz evita subir gigabytes de basura tecnológica a GitHub.
+**/.terragrunt-cache/
 
 # ------------------------------------------------------------------------------
-# 3. INFRACOST (Auditoría de Costos)
+# 3. VARIABLES Y CONFIGURACIONES DE ENTORNO (Seguridad Defensiva)
 # ------------------------------------------------------------------------------
-# Archivos de configuración locales y reportes de costos en formato JSON/HTML
-.infracost/
-infracost-report.json
-infracost-report.html
-*reporte*.json
-*.json.log
+# Archivos de inyección de variables locales que suelen contener contraseñas o llaves
+**/*.tfvars
+**/*.tfvars.json
+**/hcl.tfvars
+**/*.local.tfvars
+
+# Archivos de variables de entorno del sistema
+**/.env
+**/.env.*
 
 # ------------------------------------------------------------------------------
-# 4. ENTORNO LOCAL Y EDITORES (WSL, Linux, VSCode, Vim)
+# 4. LLAVES CRIPTOGRÁFICAS Y CREDENCIALES (¡CRÍTICO!)
 # ------------------------------------------------------------------------------
-# Archivos temporales de Vim (swap files) creados al usar 'vi' o 'vim'
-.*.swp
-*.swp
-*~
-
-# Configuraciones de VS Code específicas de tu máquina
-.vscode/
-.history/
-
-# Archivos del sistema operativo u optimización de carpetas
-.DS_Store
-.directory
-Thumbs.db
+# Bloqueo total de llaves privadas SSH, certificados y accesos locales de laboratorios
+**/*.pem
+**/*.key
+**/*.id_rsa
+**/*.pub
 
 # ------------------------------------------------------------------------------
-# 5. SECRETOS Y LLAVES (Seguridad Defensiva)
+# 5. INFRACOST (Gobernanza FinOps)
 # ------------------------------------------------------------------------------
-# En caso de que uses llaves privadas SSH o archivos de credenciales de nube locales
-*.pem
-*.key
-*.id_rsa
-.env
-.env.*
+# Caché local de Infracost y reportes generados en formatos de intercambio
+**/.infracost/
+**/infracost-report.json
+**/infracost-report.html
+**/*reporte*.json
+**/*.json.log
 
-# Archivos temporales de Vagrant
+# ------------------------------------------------------------------------------
+# 6. ENTORNO LOCAL, EDITORES Y SCRIPTS (WSL, Linux, VSCode, Vim, JQ)
+# ------------------------------------------------------------------------------
+# Archivos temporales de intercambio (swap) creados al usar 'vi' o 'vim'
+**/*.swp
+**/.*.swp
+**/*~
+
+# Configuraciones de editores de código específicas de cada máquina
+**/.vscode/
+**/.history/
+**/.idea/
+
+# Archivos temporales generados en el disco por scripts de purga de AWS (JQ)
+**/tmp/markers.json
+**/tmp/v_objects.json
+**/tmp/d_objects.json
+
+# Basura del sistema operativo y optimizaciones de carpetas
+**/.DS_Store
+**/.directory
+**/Thumbs.db
+
+# ------------------------------------------------------------------------------
+# 7. VIRTUALIZACIÓN / CONTENEDORES (Opcionales de soporte)
+# ------------------------------------------------------------------------------
 **/.vagrant/
+**/.docker/
