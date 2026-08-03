@@ -1,18 +1,74 @@
+# Runbook: Aprovisionamiento Web y Endpoint de Monitoreo
+
+![Ansible](https://img.shields.io/badge/Ansible-Automatización-EE0000?style=for-the-badge&logo=ansible&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Contenedores-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![Ubuntu](https://img.shields.io/badge/Ubuntu-24.04_LTS-E95420?style=for-the-badge&logo=ubuntu&logoColor=white)
+![Jinja2](https://img.shields.io/badge/Jinja2-Plantillas-B41717?style=for-the-badge&logo=jinja&logoColor=white)
+![Nivel](https://img.shields.io/badge/Nivel-Intermedio-3776AB?style=for-the-badge)
+
+## Sobre este taller
+
+Les voy a guiar paso a paso en la construcción de un entorno de aprovisionamiento web con monitoreo básico. Vamos a levantar dos nodos administrados sobre Docker, y escribiré con ustedes un playbook declarativo e idempotente, usando la nomenclatura completa de colecciones (`ansible.builtin.*`).
+
+Trabajaremos sobre Ubuntu Server 24.04 LTS, dentro de una máquina virtual.
+
+## Arquitectura del laboratorio
+
+```mermaid
+flowchart LR
+    subgraph Local["Equipo Local (Windows)"]
+        B[Navegador Web]
+    end
+
+    subgraph VM["VirtualBox · Ubuntu 24.04 LTS"]
+        A[Nodo Controlador Ansible]
+        N1[app-node01 · Nginx]
+        N2[app-node02 · Nginx]
+    end
+
+    B -- HTTP :8083 --> N1
+    B -- HTTP :8084 --> N2
+    A -- SSH :2223 --> N1
+    A -- SSH :2224 --> N2
+
+    style A fill:#EE0000,color:#fff
+    style N1 fill:#2496ED,color:#fff
+    style N2 fill:#2496ED,color:#fff
+    style B fill:#38bdf8,color:#0f172a
+```
+
+## Estructura del proyecto
+
+Antes de escribir código, así vamos a organizar el directorio `~/desafio-ansible/`:
+
+```
+desafio-ansible/
+├── Dockerfile
+├── ansible.cfg
+├── inventory.ini
+├── deploy.yml
+├── cleanup.sh
+├── group_vars/
+│   └── webservers/
+│       └── vars.yml
+└── templates/
+    ├── index.j2
+    └── health.j2
+```
+
 ---
 
-## Fase 1 — Preparación del entorno de control
+## Fase 1 · Preparación del entorno de control
 
-### 1.1 Directorio de trabajo y llaves SSH dedicadas
+### 1.1 Directorio y llaves SSH dedicadas
 
-Nunca usen sus llaves SSH personales para un laboratorio efímero. Generamos un par exclusivo para aislar credenciales:
+Uso una clave exclusiva para este laboratorio, para no mezclar credenciales con mis llaves personales. Elijo Ed25519 por su rendimiento y robustez frente a RSA.
 
 ```bash
 mkdir -p ~/desafio-ansible && cd ~/desafio-ansible
 
 test -f ~/.ssh/id_desafio_ansible || ssh-keygen -t ed25519 -N "" -f ~/.ssh/id_desafio_ansible
 ```
-
-> Uso Ed25519 en lugar de RSA porque ofrece mejor rendimiento y un nivel criptográfico superior con claves más cortas.
 
 ### 1.2 Dockerfile con la clave inyectada
 
@@ -34,9 +90,9 @@ CMD ["/usr/sbin/sshd", "-D"]
 EOF
 ```
 
-> **Atención:** OpenSSH exige permisos `700` en `.ssh` y `600` en `authorized_keys`. Si se equivocan aquí, la conexión será rechazada sin excepción.
+> **Ojo con los permisos.** OpenSSH exige `700` en `.ssh` y `600` en `authorized_keys`. Si no respetan esto, rechaza la conexión por seguridad.
 
-### 1.3 Construcción de la imagen y despliegue de nodos
+### 1.3 Construcción de la imagen y arranque de nodos
 
 ```bash
 docker build -t desafio-node:24.04 .
@@ -47,12 +103,12 @@ docker run -d --name app-node01 -p 2223:22 -p 8083:80 desafio-node:24.04
 docker run -d --name app-node02 -p 2224:22 -p 8084:80 desafio-node:24.04
 ```
 
-| Contenedor | Puerto SSH (host) | Puerto HTTP (host) |
+| Contenedor | Puerto SSH | Puerto HTTP |
 |---|---|---|
 | app-node01 | 2223 | 8083 |
 | app-node02 | 2224 | 8084 |
 
-### 1.4 Verificación de acceso desatendido
+### 1.4 Limpieza de huellas SSH y prueba de acceso
 
 ```bash
 ssh-keygen -f ~/.ssh/known_hosts -R '[127.0.0.1]:2223' -R '[127.0.0.1]:2224' 2>/dev/null
@@ -61,11 +117,11 @@ ssh -i ~/.ssh/id_desafio_ansible -o StrictHostKeyChecking=no -o UserKnownHostsFi
 ssh -i ~/.ssh/id_desafio_ansible -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 2224 root@127.0.0.1 "hostname -I"
 ```
 
-Si ambos comandos les devuelven una IP interna sin pedir contraseña, la capa de autenticación está lista y pueden avanzar.
+Si ambos comandos devuelven la IP interna sin pedir contraseña, la capa de autenticación está lista.
 
 ---
 
-## Fase 2 — Inventario y configuración global
+## Fase 2 · Inventario y parámetros globales
 
 ### 2.1 Inventario (`inventory.ini`)
 
@@ -80,7 +136,7 @@ ansible_python_interpreter=/usr/bin/python3
 EOF
 ```
 
-### 2.2 Configuración (`ansible.cfg`)
+### 2.2 Configuración global (`ansible.cfg`)
 
 ```bash
 cat << 'EOF' > ansible.cfg
@@ -93,19 +149,19 @@ interpreter_python = auto_silent
 EOF
 ```
 
-`host_key_checking = False` nos evita la validación interactiva de llaves, algo ideal en laboratorios con contenedores que se recrean constantemente.
+`host_key_checking = False` evita la validación interactiva de llaves, algo ideal en laboratorios con contenedores efímeros.
 
-### 2.3 Prueba de conectividad
+### 2.3 Verificación de conectividad
 
 ```bash
 ansible all -m ansible.builtin.ping
 ```
 
-Una respuesta `"ping": "pong"` en verde confirma que Ansible ya ejecuta código Python remoto por SSH sin fricción.
+La respuesta `"pong"` confirma que Ansible se conectó por SSH y ejecutó Python remoto con éxito.
 
 ---
 
-## Fase 3 — Variables y plantillas Jinja2
+## Fase 3 · Variables y plantillas Jinja2
 
 ```bash
 mkdir -p templates group_vars/webservers
@@ -149,7 +205,7 @@ cat << 'EOF' > templates/index.j2
 EOF
 ```
 
-### 3.3 Plantilla de salud (`templates/health.j2`)
+### 3.3 Plantilla de monitoreo (`templates/health.j2`)
 
 ```bash
 cat << 'EOF' > templates/health.j2
@@ -176,9 +232,11 @@ EOF
 
 ---
 
-## Fase 4 — Playbook y ejecución
+## Fase 4 · Playbook de aprovisionamiento
 
-### 4.1 Playbook principal (`deploy.yml`)
+### 4.1 El playbook (`deploy.yml`)
+
+Presten atención a la directiva `when:`, que controla la ejecución condicional según el valor de nuestras variables.
 
 ```bash
 cat << 'EOF' > deploy.yml
@@ -222,34 +280,48 @@ cat << 'EOF' > deploy.yml
 EOF
 ```
 
-### 4.2 Validación y primera ejecución
+### 4.2 Flujo de ejecución del playbook
+
+```mermaid
+flowchart TD
+    S([Inicio]) --> F[Recolectar facts]
+    F --> P1[Actualizar cache APT]
+    P1 --> P2[Instalar Nginx]
+    P2 --> P3[Desplegar index.html]
+    P3 --> D{enable_health_check?}
+    D -- true --> P4[Desplegar health.html]
+    D -- false --> P5[Saltar tarea]
+    P4 --> P6[Servicio Nginx activo]
+    P5 --> P6
+    P6 --> E([Fin])
+
+    style D fill:#f59e0b,color:#0f172a
+    style S fill:#10b981,color:#0f172a
+    style E fill:#10b981,color:#0f172a
+```
+
+### 4.3 Validar sintaxis y ejecutar
 
 ```bash
 ansible-playbook deploy.yml --syntax-check
 ansible-playbook deploy.yml
 ```
 
-En esta primera corrida van a ver tareas marcadas en amarillo como `changed`. Es exactamente lo esperado: Ansible está creando algo que antes no existía.
+Van a ver tareas marcadas como `changed`: confirma que Ansible aplicó cambios reales sobre los contenedores.
 
-### 4.3 Prueba de idempotencia
+### 4.4 Comprobar idempotencia
+
+La prueba definitiva de un buen código de infraestructura es volver a ejecutarlo sin cambios:
 
 ```bash
 ansible-playbook deploy.yml --check
 ```
 
-```mermaid
-graph LR
-    A[Primera ejecucion] -->|changed > 0| B[Estado aplicado]
-    B --> C[Segunda ejecucion --check]
-    C -->|changed = 0| D[Idempotencia confirmada]
-    style D fill:#10b981,color:#fff
-```
-
-Si el `PLAY RECAP` final muestra `changed=0` en verde, el estado real del servidor coincide exactamente con lo que declaramos en código. Esa es la prueba definitiva de un playbook bien escrito.
+Si el `PLAY RECAP` muestra `changed=0`, el estado real coincide exactamente con lo declarado.
 
 ---
 
-## Validación de servicios
+## Validación de servicios y endpoints
 
 ```bash
 curl -s http://127.0.0.1:8083 | grep "Aplicacion Web"
@@ -259,20 +331,20 @@ curl -s http://127.0.0.1:8083/health.html | grep "STATUS:"
 curl -s http://127.0.0.1:8084/health.html | grep "STATUS:"
 ```
 
-Desde el navegador de Windows, usen la IP que VirtualBox asignó a la máquina (por ejemplo `192.168.1.148`):
+Desde el navegador, con la IP asignada a la VM (ejemplo `192.168.1.148`):
 
-| Recurso | URL |
+| Servicio | URL |
 |---|---|
-| Página principal — Nodo 1 | `http://192.168.1.148:8083` |
-| Health check — Nodo 1 | `http://192.168.1.148:8083/health.html` |
-| Página principal — Nodo 2 | `http://192.168.1.148:8084` |
-| Health check — Nodo 2 | `http://192.168.1.148:8084/health.html` |
+| Página Nodo 1 | http://192.168.1.148:8083 |
+| Health Nodo 1 | http://192.168.1.148:8083/health.html |
+| Página Nodo 2 | http://192.168.1.148:8084 |
+| Health Nodo 2 | http://192.168.1.148:8084/health.html |
 
 ---
 
 ## Limpieza del entorno
 
-Al terminar el laboratorio, destruimos todo lo que creamos para no dejar residuos en el sistema.
+Al terminar, destruyo los recursos efímeros con este script:
 
 ```bash
 cat << 'EOF' > cleanup.sh
@@ -289,14 +361,14 @@ echo "Entorno destruido y limpio correctamente."
 EOF
 
 chmod +x cleanup.sh
+```
+
+```bash
 ./cleanup.sh
 ```
 
 ---
 
-## Cierre
+![Status](https://img.shields.io/badge/Estado-Listo_para_producción_de_laboratorio-10b981?style=flat-square)
+![Idempotente](https://img.shields.io/badge/Playbook-Idempotente-38bdf8?style=flat-square)
 
-Con esto completamos el ciclo completo: preparación, inventario, plantillas, aprovisionamiento, verificación de idempotencia y limpieza. Este mismo esqueleto lo pueden reutilizar en cualquier proyecto real, cambiando el rol de Nginx por el servicio que necesiten desplegar.
-
-![Estado](https://img.shields.io/badge/Laboratorio-Completo-success?style=flat-square)
-![Idempotencia](https://img.shields.io/badge/changed-0-brightgreen?style=flat-square)
