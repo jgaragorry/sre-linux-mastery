@@ -1,12 +1,13 @@
-# Runbook: Ansible Fundamentals & Configuration as Code
+# Runbook Práctico: Desafío Aprovisionamiento Web & Endpoint de Monitoreo
 
-**Especialización SRE Linux — Nivel inicial a intermedio**
+![Ansible Core](https://img.shields.io/badge/Ansible-Core_2.21+-EE0000?style=for-the-badge&logo=ansible&logoColor=white)
+![Ubuntu Server](https://img.shields.io/badge/Ubuntu-24.04_LTS-E95420?style=for-the-badge&logo=ubuntu&logoColor=white)
+![Docker Engine](https://img.shields.io/badge/Docker-24.0+-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![Jinja2 Engine](https://img.shields.io/badge/Jinja2-Templates-A51208?style=for-the-badge&logo=jinja&logoColor=white)
 
-[![Ansible](https://img.shields.io/badge/Ansible-Core_2.21+-EE0000?style=for-the-badge&logo=ansible&logoColor=white)](https://www.ansible.com/)
-[![Ubuntu](https://img.shields.io/badge/Ubuntu-24.04_LTS-E95420?style=for-the-badge&logo=ubuntu&logoColor=white)](https://ubuntu.com/)
-[![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
-[![Docker](https://img.shields.io/badge/Docker-Engine_24+-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
-[![License](https://img.shields.io/badge/Licencia-Uso_Educativo-4c1?style=for-the-badge)](#)
+---
+
+## Fase 1 — Preparación del entorno de control
 
 ---
 
