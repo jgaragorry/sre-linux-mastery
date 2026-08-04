@@ -1,0 +1,5 @@
+---
+app_port: 5000
+app_name: "SRE Microservice Backend"
+app_directory: "/opt/sre_app"
+nginx_server_name: "sre-proxy.local"

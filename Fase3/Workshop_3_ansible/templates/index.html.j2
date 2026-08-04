@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ app_name }}</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #0f172a;
+            color: #f8fafc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .card {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 35px;
+            max-width: 650px;
+            width: 100%;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+            border: 1px solid #334155;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #334155;
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+        }
+        .title { font-size: 22px; font-weight: 700; color: #38bdf8; }
+        .badge {
+            background: #166534;
+            color: #4ade80;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            border: 1px solid #22c55e;
+        }
+        .grid { display: grid; gap: 16px; }
+        .info-item {
+            background: #0f172a;
+            padding: 16px;
+            border-radius: 10px;
+            border-left: 4px solid #38bdf8;
+        }
+        .label { font-size: 12px; color: #94a3b8; text-transform: uppercase; font-weight: 600; }
+        .value { font-size: 18px; color: #f1f5f9; font-family: monospace; margin-top: 6px; font-weight: 600; }
+        .footer {
+            margin-top: 25px;
+            text-align: center;
+            font-size: 13px;
+            color: #64748b;
+            border-top: 1px solid #334155;
+            padding-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="header">
+            <div class="title">{{ app_name }}</div>
+            <div class="badge">SYSTEM ONLINE</div>
+        </div>
+        <div class="grid">
+            <div class="info-item">
+                <div class="label">Identificador del Nodo (Hostname)</div>
+                <div class="value">{{ ansible_facts['hostname'] }}</div>
+            </div>
+            <div class="info-item">
+                <div class="label">Direccion IP Interna del Contenedor</div>
+                <div class="value">{{ ansible_facts['default_ipv4']['address'] | default('127.0.0.1') }}</div>
+            </div>
+            <div class="info-item">
+                <div class="label">Motor Backend Exec-Engine</div>
+                <div class="value">Python 3 HTTP Server (Reverse Proxy Nginx)</div>
+            </div>
+        </div>
+        <div class="footer">
+            Infraestructura Aprovisionada con <strong>Ansible Automation</strong> — SRE 2026
+        </div>
+    </div>
+</body>
+</html>

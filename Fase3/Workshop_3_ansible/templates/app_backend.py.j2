@@ -1,0 +1,36 @@
+import http.server
+import socketserver
+import json
+import os
+
+PORT = {{ app_port }}
+
+class SREHandler(http.server.SimpleHTTPRequestHandler):
+    def do_GET(self):
+        if self.path == '/api/json':
+            self.send_response(200)
+            self.send_header("Content-type", "application/json")
+            self.end_headers()
+            payload = {
+                "service": "{{ app_name }}",
+                "hostname": "{{ ansible_facts['hostname'] }}",
+                "ip_address": "{{ ansible_facts['default_ipv4']['address'] | default('127.0.0.1') }}",
+                "status": "HEALTHY"
+            }
+            self.wfile.write(json.dumps(payload, indent=2).encode('utf-8'))
+            return
+
+        self.send_response(200)
+        self.send_header("Content-type", "text/html; charset=utf-8")
+        self.end_headers()
+        
+        index_path = "/opt/sre_app/index.html"
+        if os.path.exists(index_path):
+            with open(index_path, "rb") as f:
+                self.wfile.write(f.read())
+        else:
+            self.wfile.write(b"<h1>Error: index.html no encontrado</h1>")
+
+socketserver.TCPServer.allow_reuse_address = True
+with socketserver.TCPServer(("", PORT), SREHandler) as httpd:
+    httpd.serve_forever()
