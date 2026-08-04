@@ -1,0 +1,6 @@
+---
+- name: Workshop 4 - Aprovisionamiento e Idempotencia CaC
+  hosts: local
+  gather_facts: false
+  roles:
+    - role: webserver

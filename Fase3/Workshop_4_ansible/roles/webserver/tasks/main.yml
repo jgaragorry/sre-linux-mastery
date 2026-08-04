@@ -1,0 +1,14 @@
+---
+- name: Garantizar estado activo del servicio Docker
+  ansible.builtin.service:
+    name: docker
+    state: started
+
+- name: Desplegar contenedor Nginx (Estado Deseado - CaC)
+  community.docker.docker_container:
+    name: sre_web_service
+    image: nginx:alpine
+    state: started
+    restart_policy: always
+    published_ports:
+      - "8080:80"
