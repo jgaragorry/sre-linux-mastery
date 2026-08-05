@@ -23,7 +23,7 @@ class SREHandler(http.server.SimpleHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-type", "text/html; charset=utf-8")
         self.end_headers()
-        
+
         index_path = "/opt/sre_app/index.html"
         if os.path.exists(index_path):
             with open(index_path, "rb") as f:

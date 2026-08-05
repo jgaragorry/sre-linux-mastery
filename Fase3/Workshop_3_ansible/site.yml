@@ -31,10 +31,17 @@
         group: www-data
         mode: '0644'
 
+    - name: Verificar si la aplicacion Backend Python ya esta en ejecucion
+      ansible.builtin.command: "pgrep -f {{ app_directory }}/app.py"
+      register: app_running
+      failed_when: false
+      changed_when: false
+
     - name: Iniciar aplicacion Backend Python
       ansible.builtin.shell: "python3 {{ app_directory }}/app.py > {{ app_directory }}/app.log 2>&1 &"
       async: 10
       poll: 0
+      when: app_running.rc != 0
 
     - name: Configurar sitio Nginx Reverse Proxy
       ansible.builtin.template:

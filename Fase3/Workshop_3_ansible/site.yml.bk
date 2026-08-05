@@ -1,0 +1,64 @@
+---
+- name: Aprovisionamiento de Reverse Proxy y Microservicio Backend SRE
+  hosts: webservers
+  gather_facts: true
+
+  handlers:
+    - import_tasks: handlers/main.yml
+
+  tasks:
+    - name: Crear directorio para la aplicacion backend
+      ansible.builtin.file:
+        path: "{{ app_directory }}"
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0755'
+
+    - name: Desplegar script backend en Python
+      ansible.builtin.template:
+        src: templates/app_backend.py.j2
+        dest: "{{ app_directory }}/app.py"
+        owner: www-data
+        group: www-data
+        mode: '0755'
+
+    - name: Desplegar interfaz HTML
+      ansible.builtin.template:
+        src: templates/index.html.j2
+        dest: "{{ app_directory }}/index.html"
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Iniciar aplicacion Backend Python
+      ansible.builtin.shell: "python3 {{ app_directory }}/app.py > {{ app_directory }}/app.log 2>&1 &"
+      async: 10
+      poll: 0
+
+    - name: Configurar sitio Nginx Reverse Proxy
+      ansible.builtin.template:
+        src: templates/nginx_proxy.conf.j2
+        dest: /etc/nginx/sites-available/sre_proxy.conf
+        owner: root
+        group: root
+        mode: '0644'
+      notify: Recargar Nginx
+
+    - name: Habilitar el sitio en Nginx (Enlace Simbolico)
+      ansible.builtin.file:
+        src: /etc/nginx/sites-available/sre_proxy.conf
+        dest: /etc/nginx/sites-enabled/sre_proxy.conf
+        state: link
+      notify: Recargar Nginx
+
+    - name: Deshabilitar el sitio default de Nginx
+      ansible.builtin.file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+      notify: Recargar Nginx
+
+    - name: Asegurar que Nginx esta activo
+      ansible.builtin.service:
+        name: nginx
+        state: started
