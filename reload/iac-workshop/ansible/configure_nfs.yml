@@ -1,0 +1,128 @@
+---
+- name: Bootstrap Python en todos los contenedores
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Instalar python3 mínimo vía raw
+      raw: which python3 || (apt-get update && apt-get install -y python3)
+      changed_when: false
+
+- name: Configurar Servidor de Usuarios NFSv4 Puro
+  hosts: nfs_server
+  gather_facts: true
+  tasks:
+    - name: Actualizar repositorios APT
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Instalar paquetes de NFS-Ganesha y utilidades de proceso
+      apt:
+        name:
+          - nfs-ganesha
+          - nfs-ganesha-vfs
+          - psmisc
+        state: present
+
+    - name: Crear punto de exportación
+      file:
+        path: /srv/nfs/user_profiles
+        state: directory
+        mode: '0755'
+
+    - name: Montar tmpfs para soporte POSIX total de inodos
+      mount:
+        path: /srv/nfs/user_profiles
+        src: tmpfs
+        fstype: tmpfs
+        state: mounted
+
+    - name: Crear directorios de ejecución para Ganesha
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+      loop:
+        - /run/ganesha
+        - /var/run/ganesha
+
+    - name: Crear archivo inicial de usuarios
+      copy:
+        dest: /srv/nfs/user_profiles/seed_user.json
+        content: '{"user": "admin_jgaragorry", "status": "active", "tier": "sre_core"}'
+        mode: '0644'
+
+    - name: Configurar Ganesha en modo NFSv4 puro (sin RPCBind ni DBus)
+      copy:
+        dest: /etc/ganesha/ganesha.conf
+        content: |
+          NFS_CORE_PARAM {
+              NFS_Port = 2049;
+              Bind_Addr = 0.0.0.0;
+              Enable_NLM = false;
+              Enable_RQUOTA = false;
+              Protocols = 4;
+          }
+          NFSv4 {
+              Graceless = true;
+          }
+          _DBUS {
+              enable_dbus = false;
+          }
+          EXPORT
+          {
+              Export_Id = 77;
+              Path = /srv/nfs/user_profiles;
+              Pseudo = /srv/nfs/user_profiles;
+              Access_Type = RW;
+              Squash = No_Root_Squash;
+              Attr_Expiration_Time = 0;
+              FSAL {
+                  Name = VFS;
+              }
+          }
+        mode: '0644'
+
+    - name: Detener instancias previas si existen
+      shell: killall -q ganesha.nfsd || true
+      changed_when: false
+
+    - name: Iniciar demonio NFS-Ganesha desacoplado
+      shell: "/bin/sh -c 'nohup ganesha.nfsd -f /etc/ganesha/ganesha.conf -L /var/log/ganesha.log </dev/null >/dev/null 2>&1 &'"
+      changed_when: true
+
+    - name: Pausa técnica para arranque de socket NFSv4
+      pause:
+        seconds: 4
+
+- name: Configurar Cliente NFS de Usuarios
+  hosts: nfs_client
+  gather_facts: false
+  tasks:
+    - name: Actualizar repositorios APT en cliente
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Instalar cliente NFS
+      apt:
+        name: nfs-common
+        state: present
+
+    - name: Crear directorio de montaje local
+      file:
+        path: /mnt/shared_users
+        state: directory
+        mode: '0755'
+
+    - name: Desmontar volumen previo si existiera
+      shell: umount -f /mnt/shared_users || true
+      changed_when: false
+
+    - name: Montar volumen NFSv4 exportado por el servidor
+      mount:
+        path: /mnt/shared_users
+        src: "172.28.0.10:/srv/nfs/user_profiles"
+        fstype: nfs
+        opts: "proto=tcp,port=2049,nolock,vers=4.1"
+        state: mounted
