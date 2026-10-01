@@ -1,0 +1,473 @@
+[0;1;31m●[0m MSI
+    State: [0;1;31mdegraded[0m
+    Units: 730 loaded (incl. loaded aliases)
+     Jobs: 0 queued
+   Failed: 1 units
+    Since: Tue 2026-09-29 20:35:56 -03; 3min 4s ago
+  systemd: 255.4-1ubuntu8.17
+   CGroup: /
+           ├─init.scope
+           │ ├─[0;38;5;245m   1 /sbin/init[0m
+           │ ├─[0;38;5;245m   2 /init[0m
+           │ ├─[0;38;5;245m   6 plan9 --control-socket 7 --log-level 4 --server-fd 8 --pipe-fd 10 --log-truncate[0m
+           │ ├─[0;38;5;245m1258 /init[0m
+           │ ├─[0;38;5;245m1259 /init[0m
+           │ └─[0;38;5;245m1261 -bash[0m
+           ├─kubepods.slice
+           │ ├─kubepods-besteffort.slice
+           │ │ ├─kubepods-besteffort-pod03c8bde9_7068_4564_ae62_563ef80d1e1e.slice
+           │ │ │ ├─cri-containerd-340613489eb6c77da7577adf1de739fa1014e99b29ed54bf7a2c73f5a4e41639.scope
+           │ │ │ │ ├─[0;38;5;245m9906 "nginx: master process nginx -g daemon off;"[0m
+           │ │ │ │ ├─[0;38;5;245m9976 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9978 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9979 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9982 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9983 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9985 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9986 "nginx: worker process"[0m
+           │ │ │ │ └─[0;38;5;245m9987 "nginx: worker process"[0m
+           │ │ │ └─cri-containerd-fee8dcb801998b338c64d30dafe08baf87c0ecf64ff117a5d137630faf0f208a.scope
+           │ │ │   └─[0;38;5;245m6881 /pause[0m
+           │ │ ├─kubepods-besteffort-pod04fb7f52_ee7c_4f88_9869_82d3e74d1080.slice
+           │ │ │ ├─cri-containerd-1811aef3f667c78f782dfba58af692062a4b94671bad373122eb255554a98a03.scope
+           │ │ │ │ ├─[0;38;5;245m7559 /usr/bin/tini -- /usr/local/bin/argocd-applicationset-controller[0m
+           │ │ │ │ └─[0;38;5;245m7723 /usr/local/bin/argocd-applicationset-controller[0m
+           │ │ │ └─cri-containerd-ae1bbc09dbcf55f0cdecaf6a3e3451b1ba3e4f817ed6b0212c597e9d624a1a02.scope
+           │ │ │   └─[0;38;5;245m5456 /pause[0m
+           │ │ ├─kubepods-besteffort-pod08d13be6_1b49_4de3_86e1_fb81915b8d87.slice
+           │ │ │ ├─cri-containerd-564756783999aca22cf2eb06ede46ffe7c076b349ef52178417b13403a18f29e.scope
+           │ │ │ │ └─[0;38;5;245m7030 /pause[0m
+           │ │ │ └─cri-containerd-9040530c96190e60070485d4dc5ef5b508d5081003814cca09c1cd2ac710086f.scope
+           │ │ │   ├─[0;38;5;245m10182 "nginx: master process nginx -g daemon off;"[0m
+           │ │ │   ├─[0;38;5;245m10252 "nginx: worker process"[0m
+           │ │ │   ├─[0;38;5;245m10253 "nginx: worker process"[0m
+           │ │ │   ├─[0;38;5;245m10254 "nginx: worker process"[0m
+           │ │ │   ├─[0;38;5;245m10255 "nginx: worker process"[0m
+           │ │ │   ├─[0;38;5;245m10257 "nginx: worker process"[0m
+           │ │ │   ├─[0;38;5;245m10259 "nginx: worker process"[0m
+           │ │ │   ├─[0;38;5;245m10262 "nginx: worker process"[0m
+           │ │ │   └─[0;38;5;245m10263 "nginx: worker process"[0m
+           │ │ ├─kubepods-besteffort-pod118dbeee_e7a5_4d01_8c9b_6daa7e4c8289.slice
+           │ │ │ ├─cri-containerd-5063853b4a8092a035e83f3038a03b07e99822fc0ee5c956a1bae7bf19664d58.scope
+           │ │ │ │ ├─[0;38;5;245m8607 "nginx: master process nginx -g daemon off;"[0m
+           │ │ │ │ ├─[0;38;5;245m9061 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9062 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9063 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9064 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9065 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9066 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9070 "nginx: worker process"[0m
+           │ │ │ │ └─[0;38;5;245m9073 "nginx: worker process"[0m
+           │ │ │ └─cri-containerd-704775c92e4a56aa9a622c0dc89ff049d49d3ac133dde49e5cf47ca905f4c62a.scope
+           │ │ │   └─[0;38;5;245m6766 /pause[0m
+           │ │ ├─kubepods-besteffort-pod27cdf170_5aa7_4cc9_bc83_94bdfd0de933.slice
+           │ │ │ ├─cri-containerd-01bbefb8f7136ab9142d27eee099ef96e000dfaa7bbf6e79a0e14fff14e98ccc.scope
+           │ │ │ │ ├─[0;38;5;245m8581 "nginx: master process nginx -g daemon off;"[0m
+           │ │ │ │ ├─[0;38;5;245m8844 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m8845 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m8846 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m8847 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m8848 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m8849 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m8850 "nginx: worker process"[0m
+           │ │ │ │ └─[0;38;5;245m8851 "nginx: worker process"[0m
+           │ │ │ └─cri-containerd-ef57941a95365e437622838150a4dd2674a80033686b0c6b838c878711eef1e9.scope
+           │ │ │   └─[0;38;5;245m6861 /pause[0m
+           │ │ ├─kubepods-besteffort-pod2c2b42a3_41c8_405a_9b37_1a936c063191.slice
+           │ │ │ ├─cri-containerd-0b6a9023d4f4f5fcc61bb4e8b6a5ffae3dd330f5ec673b6773b697419364effe.scope
+           │ │ │ │ └─[0;38;5;245m6712 /pause[0m
+           │ │ │ └─cri-containerd-3906a77537a69b66286980311b6d0a5667435215f03c8136820fb3fab649fbd1.scope
+           │ │ │   ├─[0;38;5;245m8100 "nginx: master process nginx -g daemon off;"[0m
+           │ │ │   ├─[0;38;5;245m8200 "nginx: worker process"[0m
+           │ │ │   ├─[0;38;5;245m8203 "nginx: worker process"[0m
+           │ │ │   ├─[0;38;5;245m8204 "nginx: worker process"[0m
+           │ │ │   ├─[0;38;5;245m8205 "nginx: worker process"[0m
+           │ │ │   ├─[0;38;5;245m8206 "nginx: worker process"[0m
+           │ │ │   ├─[0;38;5;245m8207 "nginx: worker process"[0m
+           │ │ │   ├─[0;38;5;245m8208 "nginx: worker process"[0m
+           │ │ │   └─[0;38;5;245m8209 "nginx: worker process"[0m
+           │ │ ├─kubepods-besteffort-pod328bae47_f1ef_49f4_8236_7c65fa038470.slice
+           │ │ │ ├─cri-containerd-4637fe0d0d6dcafbebf8fbb4b2c5db484cea1149d183a63def49b40b59023624.scope
+           │ │ │ │ ├─[0;38;5;245m8599 "nginx: master process nginx -g daemon off;"[0m
+           │ │ │ │ ├─[0;38;5;245m9041 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9042 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9044 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9046 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9048 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9049 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9051 "nginx: worker process"[0m
+           │ │ │ │ └─[0;38;5;245m9052 "nginx: worker process"[0m
+           │ │ │ └─cri-containerd-7dae9624693565deff419db20f3bb47ef501c3214d570fa2d4196b4213a9ca92.scope
+           │ │ │   └─[0;38;5;245m6764 /pause[0m
+           │ │ ├─kubepods-besteffort-pod328bc8ac_de9c_4047_a058_cd51e36cb629.slice
+           │ │ │ ├─cri-containerd-9e9a7de5c46627d0a1eaaea62e3314edbe88b5a585bc2bdd00c3e6f8a076f17f.scope
+           │ │ │ │ ├─[0;38;5;245m10533 "nginx: master process nginx -g daemon off;"[0m
+           │ │ │ │ ├─[0;38;5;245m10568 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m10569 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m10570 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m10571 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m10572 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m10573 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m10574 "nginx: worker process"[0m
+           │ │ │ │ └─[0;38;5;245m10575 "nginx: worker process"[0m
+           │ │ │ └─cri-containerd-e312cb9f79c22881a86e9340dcd137e8b8a666bac2aa86b621f3516f8982703e.scope
+           │ │ │   └─[0;38;5;245m6886 /pause[0m
+           │ │ ├─kubepods-besteffort-pod3d6d3d70_3eaf_4518_ac93_8e36532bb362.slice
+           │ │ │ ├─cri-containerd-9cb4769d4bf4864273c0f46fdf4c2b0fa9cc75cf29033c209060efd088e06b4d.scope
+           │ │ │ │ ├─[0;38;5;245m8645 "nginx: master process nginx -g daemon off;"[0m
+           │ │ │ │ ├─[0;38;5;245m9067 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9068 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9069 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9071 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9072 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9074 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9075 "nginx: worker process"[0m
+           │ │ │ │ └─[0;38;5;245m9076 "nginx: worker process"[0m
+           │ │ │ └─cri-containerd-e4711e3c10feb003fc0651afe6c9929746777c92fe022c29e81015f5bb35eef9.scope
+           │ │ │   └─[0;38;5;245m6880 /pause[0m
+           │ │ ├─kubepods-besteffort-pod461d272e_7bb9_4d9e_b859_d0734225e6b3.slice
+           │ │ │ ├─cri-containerd-8c807226bd1300c77ed4f8a23225ae413ea17cbd7876a8c81ea499c084bfa476.scope
+           │ │ │ │ └─[0;38;5;245m6862 /pause[0m
+           │ │ │ └─cri-containerd-ec653005dd5f738561ed1e2e4d0e3ff23e2f0cd8a4c09038e0ba53a1707f71ef.scope
+           │ │ │   ├─[0;38;5;245m10496 /usr/bin/tini -- /usr/local/bin/argocd-notifications[0m
+           │ │ │   └─[0;38;5;245m10508 /usr/local/bin/argocd-notifications[0m
+           │ │ ├─kubepods-besteffort-pod596f7c5f_0bae_40c4_aa07_b79adaf90fab.slice
+           │ │ │ ├─cri-containerd-94ed36c6a74c4e5fce3a8f00269c388961671e88953a5eb9297d3ff9dfab6da3.scope
+           │ │ │ │ ├─[0;38;5;245m10114 "nginx: master process nginx -g daemon off;"[0m
+           │ │ │ │ ├─[0;38;5;245m10148 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m10149 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m10150 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m10151 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m10152 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m10153 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m10154 "nginx: worker process"[0m
+           │ │ │ │ └─[0;38;5;245m10155 "nginx: worker process"[0m
+           │ │ │ └─cri-containerd-b4e9865fd04ed3b0e7cea235b32b5d0b90cda53d520cfc68b65f0f4acc2d87bc.scope
+           │ │ │   └─[0;38;5;245m6821 /pause[0m
+           │ │ ├─kubepods-besteffort-pod5e137a2c_3d63_4c99_b2da_7975e12fb3a5.slice
+           │ │ │ ├─cri-containerd-0ae1019b488c5f9a4d8408a47d2d1d3c7def239a9af54ad8f18c5b64b861e7d7.scope
+           │ │ │ │ ├─[0;38;5;245m10003 "nginx: master process nginx -g daemon off;"[0m
+           │ │ │ │ ├─[0;38;5;245m10049 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m10050 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m10051 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m10052 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m10053 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m10054 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m10055 "nginx: worker process"[0m
+           │ │ │ │ └─[0;38;5;245m10056 "nginx: worker process"[0m
+           │ │ │ └─cri-containerd-b24bf43349152581a5551493ecf82250150094329506043e2baaf6a8f9651971.scope
+           │ │ │   └─[0;38;5;245m7041 /pause[0m
+           │ │ ├─kubepods-besteffort-pod6f7cf36a_4704_4e35_b294_f707962c6d5e.slice
+           │ │ │ ├─cri-containerd-0ac60a1ee1de65a0652c4784829c1f3779ab3ad7c402f50bff2b928e32dc085c.scope
+           │ │ │ │ └─[0;38;5;245m6763 local-path-provisioner start --config /etc/config/config.json[0m
+           │ │ │ └─cri-containerd-a039166e33b04b91b551ed980bba1f34593c43fde2c702c28098ce7f864e17d4.scope
+           │ │ │   └─[0;38;5;245m4950 /pause[0m
+           │ │ ├─kubepods-besteffort-pod7083e9ea_9de7_4ca1_a6ac_4a3024047c45.slice
+           │ │ │ ├─cri-containerd-2744c901c227738f6e49847a8c6b113ff610efbb67d94caa05d5d039e94c1ba0.scope
+           │ │ │ │ ├─[0;38;5;245m8586 "nginx: master process nginx -g daemon off;"[0m
+           │ │ │ │ ├─[0;38;5;245m9050 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9053 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9054 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9056 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9057 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9058 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9059 "nginx: worker process"[0m
+           │ │ │ │ └─[0;38;5;245m9060 "nginx: worker process"[0m
+           │ │ │ └─cri-containerd-52e8e9db0d4a3eb15bd56a5875a79dfba2eb46f5b091a6b425997a64ca00b03e.scope
+           │ │ │   └─[0;38;5;245m6734 /pause[0m
+           │ │ ├─kubepods-besteffort-pod7d8653d6_351e_444e_9f4f_5e55a19eb98c.slice
+           │ │ │ ├─cri-containerd-766ae4ef90f36085d2fde206722f969b6d108a4945a2e7952a91935b61408787.scope
+           │ │ │ │ └─[0;38;5;245m8624 "redis-server *:6379"[0m
+           │ │ │ └─cri-containerd-9e7260df00fa531e6dc555da0d3020b9a3a7d4774475dcb0fa846167ac76fd76.scope
+           │ │ │   └─[0;38;5;245m5076 /pause[0m
+           │ │ ├─kubepods-besteffort-pod7f2d1b62_7744_4e5f_89aa_40ef82ddecc8.slice
+           │ │ │ ├─cri-containerd-7b68502aed69e8ee7ec7392f1fc12e88b9968c2ec08f78704f228c002a5094e7.scope
+           │ │ │ │ └─[0;38;5;245m6843 /pause[0m
+           │ │ │ └─cri-containerd-b4bd50c5b962f625a007edd52cfa21b4e81f0a0ec943dbafabdcd99202b4f6cf.scope
+           │ │ │   ├─[0;38;5;245m8630 /usr/bin/tini -- /usr/local/bin/argocd-application-controller[0m
+           │ │ │   └─[0;38;5;245m8871 /usr/local/bin/argocd-application-controller[0m
+           │ │ ├─kubepods-besteffort-pod98a260c7_e081_44ee_97f6_787ac57bdf71.slice
+           │ │ │ ├─cri-containerd-d380c5fef710fc0d2ff85caae1376f02a1972f57ba7421b2c7d974afaa9dc099.scope
+           │ │ │ │ ├─[0;38;5;245m8643 "nginx: master process nginx -g daemon off;"[0m
+           │ │ │ │ ├─[0;38;5;245m9086 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9088 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9090 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9091 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9092 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9093 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9094 "nginx: worker process"[0m
+           │ │ │ │ └─[0;38;5;245m9095 "nginx: worker process"[0m
+           │ │ │ └─cri-containerd-f171d97dffe33813832366f346ebfcb698b352755e20cf87498868144a47ec30.scope
+           │ │ │   └─[0;38;5;245m6860 /pause[0m
+           │ │ ├─kubepods-besteffort-podab27e65b_9bea_4ad9_bd5f_07ecc4ea4075.slice
+           │ │ │ ├─cri-containerd-43145d57f43a2dd07c4e066aa77b9059fcd3dbb7a9cc38f8c99a0a78e4152465.scope
+           │ │ │ │ └─[0;38;5;245m4904 /pause[0m
+           │ │ │ └─cri-containerd-826d15e1b91c2945bc0b30d5009dad0c18e42e834de411a7310527ab0ed3a3ed.scope
+           │ │ │   ├─[0;38;5;245m7604 "nginx: master process nginx -g daemon off;"[0m
+           │ │ │   ├─[0;38;5;245m7820 "nginx: worker process"[0m
+           │ │ │   ├─[0;38;5;245m7821 "nginx: worker process"[0m
+           │ │ │   ├─[0;38;5;245m7822 "nginx: worker process"[0m
+           │ │ │   ├─[0;38;5;245m7823 "nginx: worker process"[0m
+           │ │ │   ├─[0;38;5;245m7824 "nginx: worker process"[0m
+           │ │ │   ├─[0;38;5;245m7825 "nginx: worker process"[0m
+           │ │ │   ├─[0;38;5;245m7826 "nginx: worker process"[0m
+           │ │ │   └─[0;38;5;245m7827 "nginx: worker process"[0m
+           │ │ ├─kubepods-besteffort-podb2db5d74_ae29_453a_b629_75da48f32a6c.slice
+           │ │ │ ├─cri-containerd-09463f462ffe95c442f8138216a5983a800e427e665de72c65b38f482fdd4fee.scope
+           │ │ │ │ ├─[0;38;5;245m10185 "nginx: master process nginx -g daemon off;"[0m
+           │ │ │ │ ├─[0;38;5;245m10256 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m10258 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m10260 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m10261 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m10264 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m10265 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m10266 "nginx: worker process"[0m
+           │ │ │ │ └─[0;38;5;245m10267 "nginx: worker process"[0m
+           │ │ │ └─cri-containerd-801a973a532145292db1113b775069d99a8b5b500e2082be8ccc1b9e81a8f84d.scope
+           │ │ │   └─[0;38;5;245m6978 /pause[0m
+           │ │ ├─kubepods-besteffort-podb4d05575_be84_45a1_90ba_cbc059f780aa.slice
+           │ │ │ ├─cri-containerd-0d0b55d26dfa1dd1bd7552c3a67de1fadf292a9b5bae5f7200d9e373f893a9a1.scope
+           │ │ │ │ └─[0;38;5;245m6825 /pause[0m
+           │ │ │ └─cri-containerd-87b8c3e88d2b20a18f749a20c542dc279b3b64c01e97612a74da7130821a91b2.scope
+           │ │ │   └─[0;38;5;245m10417 /shared/argocd-dex rundex[0m
+           │ │ ├─kubepods-besteffort-podc6956771_664d_4baf_a571_df6de42ff48f.slice
+           │ │ │ ├─cri-containerd-1b52c2126eb36f15511b5da42acae39090a04772d83375bbf326355ec00dab6e.scope
+           │ │ │ │ ├─[0;38;5;245m8584 "nginx: master process nginx -g daemon off;"[0m
+           │ │ │ │ ├─[0;38;5;245m9016 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9018 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9019 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9020 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9021 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9028 "nginx: worker process"[0m
+           │ │ │ │ ├─[0;38;5;245m9029 "nginx: worker process"[0m
+           │ │ │ │ └─[0;38;5;245m9031 "nginx: worker process"[0m
+           │ │ │ └─cri-containerd-3aaecf617f1e1678f27cc2df014474a8a19dc96d6e2f6b409a448bab965a1c68.scope
+           │ │ │   └─[0;38;5;245m6716 /pause[0m
+           │ │ ├─kubepods-besteffort-podc8c698dd_f14d_4d0a_8150_847e76a9169c.slice
+           │ │ │ ├─cri-containerd-39927cba96109ea95fd50d641eb15c15d56608478ee1d4bbdbc404b1817199a9.scope
+           │ │ │ │ └─[0;38;5;245m6737 /pause[0m
+           │ │ │ └─cri-containerd-457157d6924f1c14722f3ec2109c3bfefaf6b3bf1b0a49cfc0bcda02c57fa08f.scope
+           │ │ │   ├─[0;38;5;245m8605 "nginx: master process nginx -g daemon off;"[0m
+           │ │ │   ├─[0;38;5;245m9077 "nginx: worker process"[0m
+           │ │ │   ├─[0;38;5;245m9078 "nginx: worker process"[0m
+           │ │ │   ├─[0;38;5;245m9079 "nginx: worker process"[0m
+           │ │ │   ├─[0;38;5;245m9080 "nginx: worker process"[0m
+           │ │ │   ├─[0;38;5;245m9081 "nginx: worker process"[0m
+           │ │ │   ├─[0;38;5;245m9083 "nginx: worker process"[0m
+           │ │ │   ├─[0;38;5;245m9084 "nginx: worker process"[0m
+           │ │ │   └─[0;38;5;245m9085 "nginx: worker process"[0m
+           │ │ ├─kubepods-besteffort-podd02df81b_4ed3_40fd_9dbe_e5c7e023cfae.slice
+           │ │ │ ├─cri-containerd-0153a3a14e9626fb3becc2c45fcf67a5052dd2f5023a133a5fa96773aeb6ac8f.scope
+           │ │ │ │ └─[0;38;5;245m6957 /pause[0m
+           │ │ │ └─cri-containerd-d84cad14a0f89af9ccb2bbcd9a6896e28c81d8ba5fbc73b24b248d9f23ed71ee.scope
+           │ │ │   ├─[0;38;5;245m10058 "nginx: master process nginx -g daemon off;"[0m
+           │ │ │   ├─[0;38;5;245m10093 "nginx: worker process"[0m
+           │ │ │   ├─[0;38;5;245m10094 "nginx: worker process"[0m
+           │ │ │   ├─[0;38;5;245m10095 "nginx: worker process"[0m
+           │ │ │   ├─[0;38;5;245m10096 "nginx: worker process"[0m
+           │ │ │   ├─[0;38;5;245m10097 "nginx: worker process"[0m
+           │ │ │   ├─[0;38;5;245m10098 "nginx: worker process"[0m
+           │ │ │   ├─[0;38;5;245m10099 "nginx: worker process"[0m
+           │ │ │   └─[0;38;5;245m10100 "nginx: worker process"[0m
+           │ │ ├─kubepods-besteffort-poddb10bfb5_8de6_4037_ba56_850594e8377a.slice
+           │ │ │ ├─cri-containerd-a8df5e8ddfea196418950d4da16a46c5352d4cfa9a30b75fbdfaff7db2832dee.scope
+           │ │ │ │ └─[0;38;5;245m4784 /pause[0m
+           │ │ │ └─cri-containerd-fd851f0ba8ec7d01ffc9d01734e17c9025a30e197cadcefeea7cbdaa6edd470f.scope
+           │ │ │   ├─[0;38;5;245m8915 /usr/bin/tini -- /usr/local/bin/argocd-repo-server[0m
+           │ │ │   ├─[0;38;5;245m9139 /usr/local/bin/argocd-repo-server[0m
+           │ │ │   └─[0;38;5;245m9313 gpg-agent --homedir /app/config/gpg/keys --use-standard-socket --daemon[0m
+           │ │ ├─kubepods-besteffort-pode273b74c_ed4c_4d27_9359_dda653f2826e.slice
+           │ │ │ ├─cri-containerd-0b9a667beb4e408cf3d483849f84671dc7a17e6cc91f3806e0cdec3476e50ab4.scope
+           │ │ │ │ └─[0;38;5;245m5543 /pause[0m
+           │ │ │ ├─cri-containerd-8123e72c2ff7090147a218a4c234dbab67339c33cf45cdb4bb5bc2613ca98e8e.scope
+           │ │ │ │ └─[0;38;5;245m6756 /bin/sh /usr/bin/entry[0m
+           │ │ │ └─cri-containerd-a0006577dc7b0971491dbe4ce15fb20447639104a105ca5b3eda5f82539a2199.scope
+           │ │ │   └─[0;38;5;245m7463 /bin/sh /usr/bin/entry[0m
+           │ │ ├─kubepods-besteffort-podf33eb4a0_9d9c_4cd1_b31d_87387175ff75.slice
+           │ │ │ ├─cri-containerd-4d0db71d09846754130d23b2f2b90a119b7374f3cf5acf28b2b754a386db031c.scope
+           │ │ │ │ └─[0;38;5;245m6948 /pause[0m
+           │ │ │ └─cri-containerd-5c3e200a673edeeb2427326de48b76b1a81d3c984a145e15e996ba21cc512dcd.scope
+           │ │ │   ├─[0;38;5;245m9904 "nginx: master process nginx -g daemon off;"[0m
+           │ │ │   ├─[0;38;5;245m9972 "nginx: worker process"[0m
+           │ │ │   ├─[0;38;5;245m9973 "nginx: worker process"[0m
+           │ │ │   ├─[0;38;5;245m9974 "nginx: worker process"[0m
+           │ │ │   ├─[0;38;5;245m9975 "nginx: worker process"[0m
+           │ │ │   ├─[0;38;5;245m9977 "nginx: worker process"[0m
+           │ │ │   ├─[0;38;5;245m9980 "nginx: worker process"[0m
+           │ │ │   ├─[0;38;5;245m9981 "nginx: worker process"[0m
+           │ │ │   └─[0;38;5;245m9984 "nginx: worker process"[0m
+           │ │ └─kubepods-besteffort-podf439e030_4167_4b52_9c8a_37080b444631.slice
+           │ │   ├─cri-containerd-5c9b13a2fed74f650ba53a1b0320f6fecb7e1a3bd4f53136c8b3bf0762d335e4.scope
+           │ │   │ └─[0;38;5;245m6810 /pause[0m
+           │ │   └─cri-containerd-8033f4a33de56d6829668abdbefda7d40535a02c1901f770b0a4f22a2961d64b.scope
+           │ │     ├─[0;38;5;245m8070 /usr/bin/tini -- /usr/local/bin/argocd-server[0m
+           │ │     └─[0;38;5;245m8139 /usr/local/bin/argocd-server[0m
+           │ └─kubepods-burstable.slice
+           │   ├─kubepods-burstable-pod07f322e0_50fb_400e_b838_f9a2702856f4.slice
+           │   │ ├─cri-containerd-5e0db7209f7ca66911b5d116e09949698821372a423f9bda518e74a3d4db853b.scope
+           │   │ │ └─[0;38;5;245m6794 /metrics-server --cert-dir=/tmp --secure-port=10250 --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname --kubelet-use-node-status-port --metric-resolution=15s --tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305[0m
+           │   │ └─cri-containerd-6b90bc7556ae0d7d4cdc7dc6e8613750dc539cebf734f4689c63dcd70ccde8cd.scope
+           │   │   └─[0;38;5;245m4389 /pause[0m
+           │   ├─kubepods-burstable-pod8f3d087b_1905_4406_a857_854dd2eb5034.slice
+           │   │ ├─cri-containerd-6d176e0535552bfb541c4e54846fbdb5cf4b59b3a0132af921844093c566b9c2.scope
+           │   │ │ └─[0;38;5;245m5039 /pause[0m
+           │   │ └─cri-containerd-b3cff2ddcb6c6637d81dfed6319f9d33653b57fdfceeaa7896abf15361314272.scope
+           │   │   └─[0;38;5;245m6823 /coredns -conf /etc/coredns/Corefile[0m
+           │   └─kubepods-burstable-podc824033e_4533_4569_aa67_00ac6717f007.slice
+           │     ├─cri-containerd-752fcf1500fa68156dffa18d7b37ce57e2427ba86bb24889025875118ae77b06.scope
+           │     │ ├─[0;38;5;245m6785 /usr/bin/dumb-init -- /nginx-ingress-controller --publish-service=ingress-nginx/ingress-nginx-controller --election-id=ingress-nginx-leader --controller-class=k8s.io/ingress-nginx --ingress-class=nginx --configmap=ingress-nginx/ingress-nginx-controller --validating-webhook=:8443 --validating-webhook-certificate=/usr/local/certificates/cert --validating-webhook-key=/usr/local/certificates/key[0m
+           │     │ ├─[0;38;5;245m7252 /nginx-ingress-controller --publish-service=ingress-nginx/ingress-nginx-controller --election-id=ingress-nginx-leader --controller-class=k8s.io/ingress-nginx --ingress-class=nginx --configmap=ingress-nginx/ingress-nginx-controller --validating-webhook=:8443 --validating-webhook-certificate=/usr/local/certificates/cert --validating-webhook-key=/usr/local/certificates/key[0m
+           │     │ ├─[0;38;5;245m8571 "nginx: master process /usr/bin/nginx -c /etc/nginx/nginx.conf"[0m
+           │     │ ├─[0;38;5;245m9838 "nginx: worker process"[0m
+           │     │ └─[0;38;5;245m9839 "nginx: cache manager process"[0m
+           │     └─cri-containerd-e11d320f0f3b94ca8b2250c9e5868f5276e509514b60cf94a01c213b22cd4b6e.scope
+           │       └─[0;38;5;245m3848 /pause[0m
+           ├─system.slice
+           │ ├─containerd.service
+           │ │ └─[0;38;5;245m530 /usr/bin/containerd[0m
+           │ ├─cron.service
+           │ │ └─[0;38;5;245m665 /usr/sbin/cron -f -P[0m
+           │ ├─dbus.service
+           │ │ └─[0;38;5;245m467 @dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only[0m
+           │ ├─docker.service
+           │ │ └─[0;38;5;245m683 /usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock[0m
+           │ ├─glances.service
+           │ │ └─[0;38;5;245m471 /usr/bin/python3 /usr/bin/glances -s -B 127.0.0.1[0m
+           │ ├─k3s.service
+           │ │ ├─[0;38;5;245m 524 "/usr/local/bin/k3s server"[0m
+           │ │ ├─[0;38;5;245m1038 "containerd "[0m
+           │ │ ├─[0;38;5;245m3473 /var/lib/rancher/k3s/data/4373bc7eebb47a3f48304fd6d0af7f82c8f47cc82032776b7e85e70e3b73cf93/bin/containerd-shim-runc-v2 -namespace k8s.io -id e11d320f0f3b94ca8b2250c9e5868f5276e509514b60cf94a01c213b22cd4b6e -address /run/k3s/containerd/containerd.sock[0m
+           │ │ ├─[0;38;5;245m3849 /var/lib/rancher/k3s/data/4373bc7eebb47a3f48304fd6d0af7f82c8f47cc82032776b7e85e70e3b73cf93/bin/containerd-shim-runc-v2 -namespace k8s.io -id 6b90bc7556ae0d7d4cdc7dc6e8613750dc539cebf734f4689c63dcd70ccde8cd -address /run/k3s/containerd/containerd.sock[0m
+           │ │ ├─[0;38;5;245m4297 /var/lib/rancher/k3s/data/4373bc7eebb47a3f48304fd6d0af7f82c8f47cc82032776b7e85e70e3b73cf93/bin/containerd-shim-runc-v2 -namespace k8s.io -id a8df5e8ddfea196418950d4da16a46c5352d4cfa9a30b75fbdfaff7db2832dee -address /run/k3s/containerd/containerd.sock[0m
+           │ │ ├─[0;38;5;245m4477 /var/lib/rancher/k3s/data/4373bc7eebb47a3f48304fd6d0af7f82c8f47cc82032776b7e85e70e3b73cf93/bin/containerd-shim-runc-v2 -namespace k8s.io -id 43145d57f43a2dd07c4e066aa77b9059fcd3dbb7a9cc38f8c99a0a78e4152465 -address /run/k3s/containerd/containerd.sock[0m
+           │ │ ├─[0;38;5;245m4580 /var/lib/rancher/k3s/data/4373bc7eebb47a3f48304fd6d0af7f82c8f47cc82032776b7e85e70e3b73cf93/bin/containerd-shim-runc-v2 -namespace k8s.io -id a039166e33b04b91b551ed980bba1f34593c43fde2c702c28098ce7f864e17d4 -address /run/k3s/containerd/containerd.sock[0m
+           │ │ ├─[0;38;5;245m4599 /var/lib/rancher/k3s/data/4373bc7eebb47a3f48304fd6d0af7f82c8f47cc82032776b7e85e70e3b73cf93/bin/containerd-shim-runc-v2 -namespace k8s.io -id 6d176e0535552bfb541c4e54846fbdb5cf4b59b3a0132af921844093c566b9c2 -address /run/k3s/containerd/containerd.sock[0m
+           │ │ ├─[0;38;5;245m4764 /var/lib/rancher/k3s/data/4373bc7eebb47a3f48304fd6d0af7f82c8f47cc82032776b7e85e70e3b73cf93/bin/containerd-shim-runc-v2 -namespace k8s.io -id 9e7260df00fa531e6dc555da0d3020b9a3a7d4774475dcb0fa846167ac76fd76 -address /run/k3s/containerd/containerd.sock[0m
+           │ │ ├─[0;38;5;245m5270 /var/lib/rancher/k3s/data/4373bc7eebb47a3f48304fd6d0af7f82c8f47cc82032776b7e85e70e3b73cf93/bin/containerd-shim-runc-v2 -namespace k8s.io -id ae1bbc09dbcf55f0cdecaf6a3e3451b1ba3e4f817ed6b0212c597e9d624a1a02 -address /run/k3s/containerd/containerd.sock[0m
+           │ │ ├─[0;38;5;245m5447 /var/lib/rancher/k3s/data/4373bc7eebb47a3f48304fd6d0af7f82c8f47cc82032776b7e85e70e3b73cf93/bin/containerd-shim-runc-v2 -namespace k8s.io -id 0b9a667beb4e408cf3d483849f84671dc7a17e6cc91f3806e0cdec3476e50ab4 -address /run/k3s/containerd/containerd.sock[0m
+           │ │ ├─[0;38;5;245m5860 /var/lib/rancher/k3s/data/4373bc7eebb47a3f48304fd6d0af7f82c8f47cc82032776b7e85e70e3b73cf93/bin/containerd-shim-runc-v2 -namespace k8s.io -id 7b68502aed69e8ee7ec7392f1fc12e88b9968c2ec08f78704f228c002a5094e7 -address /run/k3s/containerd/containerd.sock[0m
+           │ │ ├─[0;38;5;245m5922 /var/lib/rancher/k3s/data/4373bc7eebb47a3f48304fd6d0af7f82c8f47cc82032776b7e85e70e3b73cf93/bin/containerd-shim-runc-v2 -namespace k8s.io -id 8c807226bd1300c77ed4f8a23225ae413ea17cbd7876a8c81ea499c084bfa476 -address /run/k3s/containerd/containerd.sock[0m
+           │ │ ├─[0;38;5;245m6021 /var/lib/rancher/k3s/data/4373bc7eebb47a3f48304fd6d0af7f82c8f47cc82032776b7e85e70e3b73cf93/bin/containerd-shim-runc-v2 -namespace k8s.io -id 5c9b13a2fed74f650ba53a1b0320f6fecb7e1a3bd4f53136c8b3bf0762d335e4 -address /run/k3s/containerd/containerd.sock[0m
+           │ │ ├─[0;38;5;245m6038 /var/lib/rancher/k3s/data/4373bc7eebb47a3f48304fd6d0af7f82c8f47cc82032776b7e85e70e3b73cf93/bin/containerd-shim-runc-v2 -namespace k8s.io -id f171d97dffe33813832366f346ebfcb698b352755e20cf87498868144a47ec30 -address /run/k3s/containerd/containerd.sock[0m
+           │ │ ├─[0;38;5;245m6160 /var/lib/rancher/k3s/data/4373bc7eebb47a3f48304fd6d0af7f82c8f47cc82032776b7e85e70e3b73cf93/bin/containerd-shim-runc-v2 -namespace k8s.io -id 0d0b55d26dfa1dd1bd7552c3a67de1fadf292a9b5bae5f7200d9e373f893a9a1 -address /run/k3s/containerd/containerd.sock[0m
+           │ │ ├─[0;38;5;245m6180 /var/lib/rancher/k3s/data/4373bc7eebb47a3f48304fd6d0af7f82c8f47cc82032776b7e85e70e3b73cf93/bin/containerd-shim-runc-v2 -namespace k8s.io -id 52e8e9db0d4a3eb15bd56a5875a79dfba2eb46f5b091a6b425997a64ca00b03e -address /run/k3s/containerd/containerd.sock[0m
+           │ │ ├─[0;38;5;245m6228 /var/lib/rancher/k3s/data/4373bc7eebb47a3f48304fd6d0af7f82c8f47cc82032776b7e85e70e3b73cf93/bin/containerd-shim-runc-v2 -namespace k8s.io -id e312cb9f79c22881a86e9340dcd137e8b8a666bac2aa86b621f3516f8982703e -address /run/k3s/containerd/containerd.sock[0m
+           │ │ ├─[0;38;5;245m6253 /var/lib/rancher/k3s/data/4373bc7eebb47a3f48304fd6d0af7f82c8f47cc82032776b7e85e70e3b73cf93/bin/containerd-shim-runc-v2 -namespace k8s.io -id ef57941a95365e437622838150a4dd2674a80033686b0c6b838c878711eef1e9 -address /run/k3s/containerd/containerd.sock[0m
+           │ │ ├─[0;38;5;245m6298 /var/lib/rancher/k3s/data/4373bc7eebb47a3f48304fd6d0af7f82c8f47cc82032776b7e85e70e3b73cf93/bin/containerd-shim-runc-v2 -namespace k8s.io -id 704775c92e4a56aa9a622c0dc89ff049d49d3ac133dde49e5cf47ca905f4c62a -address /run/k3s/containerd/containerd.sock[0m
+           │ │ ├─[0;38;5;245m6368 /var/lib/rancher/k3s/data/4373bc7eebb47a3f48304fd6d0af7f82c8f47cc82032776b7e85e70e3b73cf93/bin/containerd-shim-runc-v2 -namespace k8s.io -id 3aaecf617f1e1678f27cc2df014474a8a19dc96d6e2f6b409a448bab965a1c68 -address /run/k3s/containerd/containerd.sock[0m
+           │ │ ├─[0;38;5;245m6397 /var/lib/rancher/k3s/data/4373bc7eebb47a3f48304fd6d0af7f82c8f47cc82032776b7e85e70e3b73cf93/bin/containerd-shim-runc-v2 -namespace k8s.io -id e4711e3c10feb003fc0651afe6c9929746777c92fe022c29e81015f5bb35eef9 -address /run/k3s/containerd/containerd.sock[0m
+           │ │ ├─[0;38;5;245m6430 /var/lib/rancher/k3s/data/4373bc7eebb47a3f48304fd6d0af7f82c8f47cc82032776b7e85e70e3b73cf93/bin/containerd-shim-runc-v2 -namespace k8s.io -id 7dae9624693565deff419db20f3bb47ef501c3214d570fa2d4196b4213a9ca92 -address /run/k3s/containerd/containerd.sock[0m
+           │ │ ├─[0;38;5;245m6431 /var/lib/rancher/k3s/data/4373bc7eebb47a3f48304fd6d0af7f82c8f47cc82032776b7e85e70e3b73cf93/bin/containerd-shim-runc-v2 -namespace k8s.io -id fee8dcb801998b338c64d30dafe08baf87c0ecf64ff117a5d137630faf0f208a -address /run/k3s/containerd/containerd.sock[0m
+           │ │ ├─[0;38;5;245m6500 /var/lib/rancher/k3s/data/4373bc7eebb47a3f48304fd6d0af7f82c8f47cc82032776b7e85e70e3b73cf93/bin/containerd-shim-runc-v2 -namespace k8s.io -id 0b6a9023d4f4f5fcc61bb4e8b6a5ffae3dd330f5ec673b6773b697419364effe -address /run/k3s/containerd/containerd.sock[0m
+           │ │ ├─[0;38;5;245m6529 /var/lib/rancher/k3s/data/4373bc7eebb47a3f48304fd6d0af7f82c8f47cc82032776b7e85e70e3b73cf93/bin/containerd-shim-runc-v2 -namespace k8s.io -id 39927cba96109ea95fd50d641eb15c15d56608478ee1d4bbdbc404b1817199a9 -address /run/k3s/containerd/containerd.sock[0m
+           │ │ ├─[0;38;5;245m6608 /var/lib/rancher/k3s/data/4373bc7eebb47a3f48304fd6d0af7f82c8f47cc82032776b7e85e70e3b73cf93/bin/containerd-shim-runc-v2 -namespace k8s.io -id b4e9865fd04ed3b0e7cea235b32b5d0b90cda53d520cfc68b65f0f4acc2d87bc -address /run/k3s/containerd/containerd.sock[0m
+           │ │ ├─[0;38;5;245m6655 /var/lib/rancher/k3s/data/4373bc7eebb47a3f48304fd6d0af7f82c8f47cc82032776b7e85e70e3b73cf93/bin/containerd-shim-runc-v2 -namespace k8s.io -id 801a973a532145292db1113b775069d99a8b5b500e2082be8ccc1b9e81a8f84d -address /run/k3s/containerd/containerd.sock[0m
+           │ │ ├─[0;38;5;245m6658 /var/lib/rancher/k3s/data/4373bc7eebb47a3f48304fd6d0af7f82c8f47cc82032776b7e85e70e3b73cf93/bin/containerd-shim-runc-v2 -namespace k8s.io -id 0153a3a14e9626fb3becc2c45fcf67a5052dd2f5023a133a5fa96773aeb6ac8f -address /run/k3s/containerd/containerd.sock[0m
+           │ │ ├─[0;38;5;245m6688 /var/lib/rancher/k3s/data/4373bc7eebb47a3f48304fd6d0af7f82c8f47cc82032776b7e85e70e3b73cf93/bin/containerd-shim-runc-v2 -namespace k8s.io -id 4d0db71d09846754130d23b2f2b90a119b7374f3cf5acf28b2b754a386db031c -address /run/k3s/containerd/containerd.sock[0m
+           │ │ ├─[0;38;5;245m6870 /var/lib/rancher/k3s/data/4373bc7eebb47a3f48304fd6d0af7f82c8f47cc82032776b7e85e70e3b73cf93/bin/containerd-shim-runc-v2 -namespace k8s.io -id 564756783999aca22cf2eb06ede46ffe7c076b349ef52178417b13403a18f29e -address /run/k3s/containerd/containerd.sock[0m
+           │ │ └─[0;38;5;245m6878 /var/lib/rancher/k3s/data/4373bc7eebb47a3f48304fd6d0af7f82c8f47cc82032776b7e85e70e3b73cf93/bin/containerd-shim-runc-v2 -namespace k8s.io -id b24bf43349152581a5551493ecf82250150094329506043e2baaf6a8f9651971 -address /run/k3s/containerd/containerd.sock[0m
+           │ ├─nginx.service
+           │ │ ├─[0;38;5;245m688 "nginx: master process /usr/sbin/nginx -g daemon on; master_process on;"[0m
+           │ │ ├─[0;38;5;245m689 "nginx: worker process"[0m
+           │ │ ├─[0;38;5;245m690 "nginx: worker process"[0m
+           │ │ ├─[0;38;5;245m691 "nginx: worker process"[0m
+           │ │ ├─[0;38;5;245m692 "nginx: worker process"[0m
+           │ │ ├─[0;38;5;245m693 "nginx: worker process"[0m
+           │ │ ├─[0;38;5;245m694 "nginx: worker process"[0m
+           │ │ ├─[0;38;5;245m695 "nginx: worker process"[0m
+           │ │ └─[0;38;5;245m696 "nginx: worker process"[0m
+           │ ├─ollama.service
+           │ │ └─[0;38;5;245m478 /usr/local/bin/ollama serve[0m
+           │ ├─rpcbind.service
+           │ │ └─[0;38;5;245m378 /sbin/rpcbind -f -w[0m
+           │ ├─rsyslog.service
+           │ │ └─[0;38;5;245m513 /usr/sbin/rsyslogd -n -iNONE[0m
+           │ ├─snap-bandwhich-268.mount
+           │ │ └─[0;38;5;245m120 snapfuse /var/lib/snapd/snaps/bandwhich_268.snap /snap/bandwhich/268 -o ro,nodev,allow_other,suid[0m
+           │ ├─snap-bottom-805.mount
+           │ │ └─[0;38;5;245m122 snapfuse /var/lib/snapd/snaps/bottom_805.snap /snap/bottom/805 -o ro,nodev,allow_other,suid[0m
+           │ ├─snap-bottom-818.mount
+           │ │ └─[0;38;5;245m124 snapfuse /var/lib/snapd/snaps/bottom_818.snap /snap/bottom/818 -o ro,nodev,allow_other,suid[0m
+           │ ├─snap-btop-1062.mount
+           │ │ └─[0;38;5;245m116 snapfuse /var/lib/snapd/snaps/btop_1062.snap /snap/btop/1062 -o ro,nodev,allow_other,suid[0m
+           │ ├─snap-btop-1068.mount
+           │ │ └─[0;38;5;245m129 snapfuse /var/lib/snapd/snaps/btop_1068.snap /snap/btop/1068 -o ro,nodev,allow_other,suid[0m
+           │ ├─snap-core-17284.mount
+           │ │ └─[0;38;5;245m146 snapfuse /var/lib/snapd/snaps/core_17284.snap /snap/core/17284 -o ro,nodev,allow_other,suid[0m
+           │ ├─snap-core-17292.mount
+           │ │ └─[0;38;5;245m142 snapfuse /var/lib/snapd/snaps/core_17292.snap /snap/core/17292 -o ro,nodev,allow_other,suid[0m
+           │ ├─snap-core18-2999.mount
+           │ │ └─[0;38;5;245m153 snapfuse /var/lib/snapd/snaps/core18_2999.snap /snap/core18/2999 -o ro,nodev,allow_other,suid[0m
+           │ ├─snap-core18-3084.mount
+           │ │ └─[0;38;5;245m159 snapfuse /var/lib/snapd/snaps/core18_3084.snap /snap/core18/3084 -o ro,nodev,allow_other,suid[0m
+           │ ├─snap-core20-2769.mount
+           │ │ └─[0;38;5;245m157 snapfuse /var/lib/snapd/snaps/core20_2769.snap /snap/core20/2769 -o ro,nodev,allow_other,suid[0m
+           │ ├─snap-core20-2866.mount
+           │ │ └─[0;38;5;245m169 snapfuse /var/lib/snapd/snaps/core20_2866.snap /snap/core20/2866 -o ro,nodev,allow_other,suid[0m
+           │ ├─snap-core22-2411.mount
+           │ │ └─[0;38;5;245m183 snapfuse /var/lib/snapd/snaps/core22_2411.snap /snap/core22/2411 -o ro,nodev,allow_other,suid[0m
+           │ ├─snap-core22-2955.mount
+           │ │ └─[0;38;5;245m7148 snapfuse /var/lib/snapd/snaps/core22_2955.snap /snap/core22/2955 -o ro,nodev,allow_other,suid[0m
+           │ ├─snap-core24-1587.mount
+           │ │ └─[0;38;5;245m185 snapfuse /var/lib/snapd/snaps/core24_1587.snap /snap/core24/1587 -o ro,nodev,allow_other,suid[0m
+           │ ├─snap-core24-1643.mount
+           │ │ └─[0;38;5;245m195 snapfuse /var/lib/snapd/snaps/core24_1643.snap /snap/core24/1643 -o ro,nodev,allow_other,suid[0m
+           │ ├─snap-doggo-50.mount
+           │ │ └─[0;38;5;245m194 snapfuse /var/lib/snapd/snaps/doggo_50.snap /snap/doggo/50 -o ro,nodev,allow_other,suid[0m
+           │ ├─snap-dust-19.mount
+           │ │ └─[0;38;5;245m205 snapfuse /var/lib/snapd/snaps/dust_19.snap /snap/dust/19 -o ro,nodev,allow_other,suid[0m
+           │ ├─snap-kubectl-3844.mount
+           │ │ └─[0;38;5;245m210 snapfuse /var/lib/snapd/snaps/kubectl_3844.snap /snap/kubectl/3844 -o ro,nodev,allow_other,suid[0m
+           │ ├─snap-kubectl-3855.mount
+           │ │ └─[0;38;5;245m214 snapfuse /var/lib/snapd/snaps/kubectl_3855.snap /snap/kubectl/3855 -o ro,nodev,allow_other,suid[0m
+           │ ├─snap-procs-969.mount
+           │ │ └─[0;38;5;245m220 snapfuse /var/lib/snapd/snaps/procs_969.snap /snap/procs/969 -o ro,nodev,allow_other,suid[0m
+           │ ├─snap-snapd-27710.mount
+           │ │ └─[0;38;5;245m228 snapfuse /var/lib/snapd/snaps/snapd_27710.snap /snap/snapd/27710 -o ro,nodev,allow_other,suid[0m
+           │ ├─snap-snapd-27738.mount
+           │ │ └─[0;38;5;245m236 snapfuse /var/lib/snapd/snaps/snapd_27738.snap /snap/snapd/27738 -o ro,nodev,allow_other,suid[0m
+           │ ├─snap-tldr-791.mount
+           │ │ └─[0;38;5;245m238 snapfuse /var/lib/snapd/snaps/tldr_791.snap /snap/tldr/791 -o ro,nodev,allow_other,suid[0m
+           │ ├─snap-trippy-4245.mount
+           │ │ └─[0;38;5;245m242 snapfuse /var/lib/snapd/snaps/trippy_4245.snap /snap/trippy/4245 -o ro,nodev,allow_other,suid[0m
+           │ ├─snap-yazi-910.mount
+           │ │ └─[0;38;5;245m259 snapfuse /var/lib/snapd/snaps/yazi_910.snap /snap/yazi/910 -o ro,nodev,allow_other,suid[0m
+           │ ├─snap-yazi-939.mount
+           │ │ └─[0;38;5;245m265 snapfuse /var/lib/snapd/snaps/yazi_939.snap /snap/yazi/939 -o ro,nodev,allow_other,suid[0m
+           │ ├─snapd.service
+           │ │ └─[0;38;5;245m485 /usr/lib/snapd/snapd[0m
+           │ ├─ssh.service
+           │ │ └─[0;38;5;245m10274 "sshd: /usr/sbin/sshd -D [listener] 0 of 10-100 startups"[0m
+           │ ├─system-getty.slice
+           │ │ └─getty@tty1.service
+           │ │   └─[0;38;5;245m680 /sbin/agetty -o "-p -- \\u" --noclear - linux[0m
+           │ ├─systemd-journald.service
+           │ │ └─[0;38;5;245m48 /usr/lib/systemd/systemd-journald[0m
+           │ ├─systemd-logind.service
+           │ │ └─[0;38;5;245m489 /usr/lib/systemd/systemd-logind[0m
+           │ ├─systemd-resolved.service
+           │ │ └─[0;38;5;245m419 /usr/lib/systemd/systemd-resolved[0m
+           │ ├─systemd-timesyncd.service
+           │ │ └─[0;38;5;245m421 /usr/lib/systemd/systemd-timesyncd[0m
+           │ ├─systemd-udevd.service
+           │ │ └─udev
+           │ │   └─[0;38;5;245m99 /usr/lib/systemd/systemd-udevd[0m
+           │ ├─unattended-upgrades.service
+           │ │ └─[0;38;5;245m549 /usr/bin/python3 /usr/share/unattended-upgrades/unattended-upgrade-shutdown --wait-for-signal[0m
+           │ └─wsl-pro.service
+           │   └─[0;38;5;245m492 /usr/libexec/wsl-pro-service[0m
+           └─user.slice
+             └─user-1000.slice
+               ├─session-1.scope
+               │ ├─[0;38;5;245m1265 /bin/login -f[0m
+               │ └─[0;38;5;245m2018 -bash[0m
+               ├─session-3.scope
+               │ ├─[0;38;5;245m10275 "sshd: gmt [priv]"[0m
+               │ ├─[0;38;5;245m10305 "sshd: gmt@pts/2"[0m
+               │ ├─[0;38;5;245m10306 -bash[0m
+               │ ├─[0;38;5;245m10746 systemctl status[0m
+               │ └─[0;38;5;245m10747 pager[0m
+               └─user@1000.service
+                 └─init.scope
+                   ├─[0;38;5;245m1436 /usr/lib/systemd/systemd --user[0m
+                   └─[0;38;5;245m1457 "(sd-pam)"[0m
