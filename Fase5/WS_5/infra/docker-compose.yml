@@ -1,0 +1,26 @@
+services:
+  gitea:
+    image: gitea/gitea:1.22.0
+    container_name: local-gitea
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+      - GITEA__security__INSTALL_LOCK=true
+      - GITEA__server__DISABLE_SSH=true
+      - GITEA__server__HTTP_PORT=3000
+      - GITEA__server__ROOT_URL=http://local-gitea:3000/
+      - GITEA__service__DISABLE_REGISTRATION=false
+      - GITEA__service__REQUIRE_SIGNIN_VIEW=false
+    ports:
+      - "3000:3000"
+    volumes:
+      - gitea-data:/data
+    networks:
+      - gitops-net
+
+volumes:
+  gitea-data:
+
+networks:
+  gitops-net:
+    name: gitops-net
