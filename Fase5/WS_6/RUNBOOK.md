@@ -618,18 +618,52 @@ Prueba complementaria de `selfHeal`: escalar manualmente con `kubectl scale depl
 ## Fase 9: Desmantelamiento y limpieza
 
 ```bash
-kubectl delete -f "$WS/infra/root-app.yaml"
+# 1. Eliminar la aplicación raíz (los finalizers eliminarán apps hijas y pods en cascada)
+kubectl delete -f /home/gmt/sre-linux-mastery/Fase5/WS_6/infra/root-app.yaml
+
+# 2. Purgar namespaces de trabajo
 kubectl delete namespace dev prod --ignore-not-found
-rm -rf "$WS/repo-gitops/.git" "$WS/repo-gitops/"*
-```
 
-| Paso | Efecto |
-| :--- | :--- |
-| Borrar la aplicacion raiz | Los finalizers eliminan en cascada las aplicaciones hijas y sus recursos. |
-| Borrar namespaces | Garantiza que no queden restos; `--ignore-not-found` evita errores si ya no existen. |
-| Borrar `repo-gitops` | Deja la carpeta vacia para repetir el taller. |
+# 3. Limpiar el repositorio Git local
+rm -rf /home/gmt/sre-linux-mastery/Fase5/WS_6/repo-gitops/.git
+rm -rf /home/gmt/sre-linux-mastery/Fase5/WS_6/repo-gitops/*
 
-Para eliminar tambien el cluster: `kind delete cluster --name enterprise-gitops`.
+echo "[OK] Entorno purgado y listo para una nueva ejecución limpia."
+```"""
+
+limpieza_nueva = """## FASE 9: Reseteo del Laboratorio (Para Repetir sin Borrar Archivos)
+
+Este procedimiento elimina únicamente los recursos desplegados en Kubernetes y en Git, **conservando intactos todos los archivos de configuración y manifiestos**:
+
+```bash
+# 1. Eliminar aplicaciones en ArgoCD (elimina pods y servicios automáticamente)
+kubectl delete application root-application dev-web-app prod-web-app -n argocd --ignore-not-found
+
+# 2. Purgar namespaces dev y prod si persisten
+kubectl delete namespace dev prod --ignore-not-found
+
+# 3. Eliminar y recrear el repositorio en Gitea (queda limpio a 0 commits)
+curl -s -X DELETE "http://localhost:3000/api/v1/repos/devops/multi-env-gitops" -u \x27devops:Password123!\x27
+curl -s -X POST "http://localhost:3000/api/v1/user/repos" \\
+  -H "accept: application/json" \\
+  -H "Content-Type: application/json" \\
+  -u \x27devops:Password123!\x27 \\
+  -d \x27{"name": "multi-env-gitops", "private": false}\x27
+
+# 4. Limpiar únicamente los metadatos locales de Git (.git) conservando los archivos YAML
+rm -rf /home/gmt/sre-linux-mastery/Fase5/WS_6/repo-gitops/.git
+
+echo "[OK] Clúster y Git limpios. Todos los manifiestos YAML se conservan intactos para reiniciar desde la Fase 5."
+```"""
+
+if limpieza_vieja in text:
+    text = text.replace(limpieza_vieja, limpieza_nueva)
+    with open(path, "w") as f:
+        f.write(text)
+    print("[OK] RUNBOOK.md actualizado con la lógica de preservación de archivos.")
+else:
+    print("[INFO] La sección de limpieza ya estaba actualizada o difiere levemente.")
+'
 
 ---
 
