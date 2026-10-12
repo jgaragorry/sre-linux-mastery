@@ -617,16 +617,22 @@ Prueba complementaria de `selfHeal`: escalar manualmente con `kubectl scale depl
 
 ## Fase 9: Desmantelamiento y limpieza
 
-```bash
 # 1. Eliminar la aplicación raíz (los finalizers eliminarán apps hijas y pods en cascada)
+
+```bash
 kubectl delete -f /home/gmt/sre-linux-mastery/Fase5/WS_6/infra/root-app.yaml
+```
 
 # 2. Purgar namespaces de trabajo
+```bash
 kubectl delete namespace dev prod --ignore-not-found
+```
 
 # 3. Limpiar el repositorio Git local
+```bash
 rm -rf /home/gmt/sre-linux-mastery/Fase5/WS_6/repo-gitops/.git
 rm -rf /home/gmt/sre-linux-mastery/Fase5/WS_6/repo-gitops/*
+```
 
 echo "[OK] Entorno purgado y listo para una nueva ejecución limpia."
 ```"""
@@ -635,26 +641,33 @@ limpieza_nueva = """## FASE 9: Reseteo del Laboratorio (Para Repetir sin Borrar 
 
 Este procedimiento elimina únicamente los recursos desplegados en Kubernetes y en Git, **conservando intactos todos los archivos de configuración y manifiestos**:
 
-```bash
 # 1. Eliminar aplicaciones en ArgoCD (elimina pods y servicios automáticamente)
+```bash
 kubectl delete application root-application dev-web-app prod-web-app -n argocd --ignore-not-found
+```
 
 # 2. Purgar namespaces dev y prod si persisten
+```bash
 kubectl delete namespace dev prod --ignore-not-found
+```
 
 # 3. Eliminar y recrear el repositorio en Gitea (queda limpio a 0 commits)
+```bash
 curl -s -X DELETE "http://localhost:3000/api/v1/repos/devops/multi-env-gitops" -u \x27devops:Password123!\x27
 curl -s -X POST "http://localhost:3000/api/v1/user/repos" \\
   -H "accept: application/json" \\
   -H "Content-Type: application/json" \\
   -u \x27devops:Password123!\x27 \\
   -d \x27{"name": "multi-env-gitops", "private": false}\x27
+```
 
 # 4. Limpiar únicamente los metadatos locales de Git (.git) conservando los archivos YAML
+```bash
 rm -rf /home/gmt/sre-linux-mastery/Fase5/WS_6/repo-gitops/.git
 
 echo "[OK] Clúster y Git limpios. Todos los manifiestos YAML se conservan intactos para reiniciar desde la Fase 5."
 ```"""
+```
 
 if limpieza_vieja in text:
     text = text.replace(limpieza_vieja, limpieza_nueva)
