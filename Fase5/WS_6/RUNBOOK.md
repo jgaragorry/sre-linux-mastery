@@ -617,27 +617,26 @@ Prueba complementaria de `selfHeal`: escalar manualmente con `kubectl scale depl
 
 ## Fase 9: Desmantelamiento y limpieza
 
-# 1. Eliminar la aplicación raíz (los finalizers eliminarán apps hijas y pods en cascada)
+#### 1. Eliminar la aplicación raíz (los finalizers eliminarán apps hijas y pods en cascada)
 
 ```bash
 kubectl delete -f /home/gmt/sre-linux-mastery/Fase5/WS_6/infra/root-app.yaml
 ```
 
-# 2. Purgar namespaces de trabajo
+#### 2. Purgar namespaces de trabajo
 ```bash
 kubectl delete namespace dev prod --ignore-not-found
 ```
 
-# 3. Limpiar el repositorio Git local
+#### 3. Limpiar el repositorio Git local
 ```bash
 rm -rf /home/gmt/sre-linux-mastery/Fase5/WS_6/repo-gitops/.git
 rm -rf /home/gmt/sre-linux-mastery/Fase5/WS_6/repo-gitops/*
 ```
 
 echo "[OK] Entorno purgado y listo para una nueva ejecución limpia."
-```"""
 
-limpieza_nueva = """## FASE 9: Reseteo del Laboratorio (Para Repetir sin Borrar Archivos)
+## FASE 9: Reseteo del Laboratorio (Para Repetir sin Borrar Archivos)
 
 Este procedimiento elimina únicamente los recursos desplegados en Kubernetes y en Git, **conservando intactos todos los archivos de configuración y manifiestos**:
 
@@ -664,10 +663,9 @@ curl -s -X POST "http://localhost:3000/api/v1/user/repos" \\
 # 4. Limpiar únicamente los metadatos locales de Git (.git) conservando los archivos YAML
 ```bash
 rm -rf /home/gmt/sre-linux-mastery/Fase5/WS_6/repo-gitops/.git
+```
 
 echo "[OK] Clúster y Git limpios. Todos los manifiestos YAML se conservan intactos para reiniciar desde la Fase 5."
-```"""
-```
 
 if limpieza_vieja in text:
     text = text.replace(limpieza_vieja, limpieza_nueva)
