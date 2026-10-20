@@ -887,11 +887,11 @@ kubectl get deploy mi-app -n mi-app
 
 ```mermaid
 gitGraph
-    commit id: "c1" tag: "manifiestos iniciales"
-    commit id: "c2" tag: "escalar a 5 replicas"
-    commit id: "c3" tag: "eliminar service"
-    commit id: "c4" type: REVERSE tag: "revert service"
-    commit id: "c5" tag: "Argo CD sincroniza"
+    commit id: "c1" msg: "manifiestos iniciales"
+    commit id: "c2" msg: "escalar a 5 replicas"
+    commit id: "c3" msg: "eliminar service"
+    commit id: "c4" type: REVERSE msg: "revert service"
+    commit id: "c5" msg: "Argo CD sincroniza"
 ```
 
 ```mermaid
