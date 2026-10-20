@@ -99,25 +99,50 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    A[Fase 1<br/>Clúster kind]:::infra --> B[Fase 2<br/>Instalar Argo CD]:::infra
-    B --> C[Fase 3<br/>Acceso a la UI]:::infra
-    C --> D[Fase 4<br/>Repositorio propio]:::git
-    D --> E[Fase 5<br/>Credencial SSH]:::sec
-    E --> F[Fase 6<br/>Registrar repositorio]:::sec
-    F --> G[Fase 7<br/>Crear Application]:::argo
-    G --> H[Fase 8<br/>Verificar Synced y Healthy]:::ok
-    H --> I[Fase 9<br/>Cambio y medición]:::test
-    I --> J[Fase 10<br/>Prune y selfHeal]:::test
-    J --> K[Fase 11<br/>Rollback]:::test
-    K --> L[Fase 12<br/>Limpieza]:::end
-
+    %% Definición de estilos
     classDef infra fill:#326CE5,stroke:#1B3F94,color:#fff
     classDef git fill:#24292F,stroke:#000,color:#fff
     classDef sec fill:#B08800,stroke:#6B5400,color:#fff
     classDef argo fill:#EF7B4D,stroke:#B3501F,color:#fff
-    classDef ok fill:#2EA44F,stroke:#1A6B31,color:#fff
+    classDef ok fill:#2EA44F,stroke:#1A6831,color:#fff
     classDef test fill:#8250DF,stroke:#4C2889,color:#fff
     classDef end fill:#57606A,stroke:#24292F,color:#fff
+
+    %% Definición de nodos
+    A["Fase 1<br/>Clúster kind"]
+    B["Fase 2<br/>Instalar Argo CD"]
+    C["Fase 3<br/>Acceso a la UI"]
+    D["Fase 4<br/>Repositorio propio"]
+    E["Fase 5<br/>Credencial SSH"]
+    F["Fase 6<br/>Registrar repositorio"]
+    G["Fase 7<br/>Crear Application"]
+    H["Fase 8<br/>Verificar Synced y Healthy"]
+    I["Fase 9<br/>Cambio y medición"]
+    J["Fase 10<br/>Prune y selfHeal"]
+    K["Fase 11<br/>Rollback"]
+    L["Fase 12<br/>Limpieza"]
+
+    %% Conexiones
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+    E --> F
+    F --> G
+    G --> H
+    H --> I
+    I --> J
+    J --> K
+    K --> L
+
+    %% Asignación de clases
+    class A,B,C infra
+    class D git
+    class E,F sec
+    class G argo
+    class H ok
+    class I,J,K test
+    class L end
 ```
 
 **Leyenda del diagrama**
