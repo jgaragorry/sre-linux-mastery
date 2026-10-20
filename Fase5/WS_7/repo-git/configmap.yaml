@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mi-app-config
+data:
+  ambiente: "laboratorio"
+  version: "v1"
+  mensaje: "Hola desde GitOps"

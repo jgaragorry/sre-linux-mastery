@@ -97,3 +97,6 @@
 **/.docker/
 Fase5/WS_5/repo-app/
 Fase5/WS_6/repo-gitops/
+
+# Bloquear repos Git anidados
+**/.git/
