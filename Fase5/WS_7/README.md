@@ -99,16 +99,16 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    %% Definición de estilos
+    %% Estilos
     classDef infra fill:#326CE5,stroke:#1B3F94,color:#fff
     classDef git fill:#24292F,stroke:#000,color:#fff
     classDef sec fill:#B08800,stroke:#6B5400,color:#fff
     classDef argo fill:#EF7B4D,stroke:#B3501F,color:#fff
     classDef ok fill:#2EA44F,stroke:#1A6831,color:#fff
     classDef test fill:#8250DF,stroke:#4C2889,color:#fff
-    classDef end fill:#57606A,stroke:#24292F,color:#fff
+    classDef finish fill:#57606A,stroke:#24292F,color:#fff
 
-    %% Definición de nodos
+    %% Nodos
     A["Fase 1<br/>Clúster kind"]
     B["Fase 2<br/>Instalar Argo CD"]
     C["Fase 3<br/>Acceso a la UI"]
@@ -142,7 +142,7 @@ flowchart TD
     class G argo
     class H ok
     class I,J,K test
-    class L end
+    class L finish
 ```
 
 **Leyenda del diagrama**
