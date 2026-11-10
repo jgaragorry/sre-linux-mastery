@@ -17,6 +17,7 @@ services:
       - gitea-data:/data
     networks:
       - gitops-net
+    restart: unless-stopped
 
 volumes:
   gitea-data:

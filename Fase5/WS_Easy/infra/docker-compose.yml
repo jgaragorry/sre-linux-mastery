@@ -1,0 +1,21 @@
+networks:
+  gitops-net:
+    name: gitops-net
+    driver: bridge
+
+volumes:
+  gitea-data:
+    name: gitea-data
+
+services:
+  gitea:
+    image: gitea/gitea:1.22.0
+    container_name: local-gitea
+    restart: always
+    ports:
+      - "3000:3000"
+      - "222:22"
+    volumes:
+      - gitea-data:/data
+    networks:
+      - gitops-net
